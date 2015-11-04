@@ -4,6 +4,9 @@ import scipy as sp
 from collections import Counter
 from abstract_classifier import AbstractClassifier
 
+# Time complexity:
+#   Training time   = O(N * P), where N - number of training samples, P - number of features
+#   Prediction time =
 class NaiveBayes(AbstractClassifier):
 
     def __init__(self):
@@ -29,10 +32,13 @@ class NaiveBayes(AbstractClassifier):
         self._class_prior /= self._class_prior.sum()
 
         self.feat_freq_by_class = []
-        for i, _class in enumerate(self._classes):
+        for _class in self._classes:
             tr_X_by_class = tr_X[tr_y == _class]
             feat_freq = tr_X_by_class.sum(axis=0)  # sum by rows
-            feat_freq_dense = feat_freq.A1 # convert to 1-D numpy array
+
+            # Convert Numpy matrix to 1-D Numpy array
+            feat_freq_dense = np.asarray(feat_freq).ravel()
+
             self.feat_freq_by_class.append(
                 dict([(i, freq) for i, freq in enumerate(feat_freq_dense) if freq > 0]))
 
@@ -51,22 +57,35 @@ class NaiveBayes(AbstractClassifier):
             predictions.append(log_probs.argmax())
         return np.array(predictions)
 
-    def _log_prob_feature(self, feat_idx, class_idx):
+    def predict_proba(self, te_X):
         """
-        Computes log P(w_i|C)
-        We assume P(w_j|C) = 1e-8 if the feature w_j doesn't occur in the training sample from the class C
+        Predict outcome's probabilities for the testing set
+        ::param:: te_X: numpy array
+        @return outcome's probabilities: numpy array n x c where c is the number of classes
         """
-        return math.log(self.feat_freq_by_class[class_idx].get(feat_idx, 1e-8))
+        pass
+
+    def _smoothed_feature_freq(self, feat_idx, class_idx, smoothing_factor=1.):
+        """
+        Computes count(w_i|C)
+        We assume count(w_j|C) = 1 if the feature w_j doesn't occur in the training sample from the class C
+        """
+        return smoothing_factor + self.feat_freq_by_class[class_idx].get(feat_idx, 0)
 
     def _logPX_C(self, test_sample, class_idx):
         """
-        Computes the conditional probability P(C|X) ~ P(X|C) * P(C) ~ P(w1|C) ... P(wn|C) * P(C)
+        Computes the conditional probability P(C|X) ~ P(X|C) * P(C)
+                                                    ~ P(w_1|C) ... P(w_n|C) * P(C)
         """
         test_sample_cx = sp.sparse.coo_matrix(test_sample)
-        sum_log_prob_feat = sum([self._log_prob_feature(feat_idx, class_idx)
-                                 for _, feat_idx, feat_val in zip(test_sample_cx.row,
-                                                                  test_sample_cx.col,
-                                                                  test_sample_cx.data)
-                                 if feat_val > 0])
+        feature_freqs = np.array([[feat_val, self._smoothed_feature_freq(feat_idx, class_idx)]
+                                  for _, feat_idx, feat_val in zip(test_sample_cx.row,
+                                                                   test_sample_cx.col,
+                                                                   test_sample_cx.data)])
+        feature_probs = feature_freqs[:, 1]
+        feature_probs /= feature_probs.sum()
 
-        return sum_log_prob_feat + math.log(self._class_prior[class_idx])
+        log_prob_features = feature_freqs[:, 0] * np.log(feature_probs)
+        sum_log_prob_features = log_prob_features.sum()
+
+        return sum_log_prob_features + math.log(self._class_prior[class_idx])

@@ -28,3 +28,12 @@ class AbstractClassifier(object):
         @return predicted outcomes: numpy array n x 1
         """
         pass
+
+    @abstractmethod
+    def predict_proba(self, te_X):
+        """
+        Predict outcome's probabilities for the testing set
+        ::param:: te_X: num~py array
+        @return outcome's probabilities: numpy array n x c where c is the number of classes
+        """
+        pass

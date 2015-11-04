@@ -41,7 +41,10 @@ def get_rcv1_train_test():
 def get_accuracy(model, train_test):
     tr_X, te_X, tr_y, te_y = train_test
 
+    print("Fitting %s ..." % model.__class__.__name__)
     model.fit(tr_X, tr_y)
+
+    print("Predicting ...")
     pred_y = model.predict(te_X)
 
     return (te_y == pred_y).mean()
@@ -51,7 +54,7 @@ def test_sklearn():
     train_test = get_20newsgroup_train_test()
     # train_test = get_rcv1_train_test()
 
-    models = [MultinomialNB(),
+    models = [MultinomialNB(fit_prior=False),
               # LogisticRegression(),
               # RandomForestClassifier(),
               # GradientBoostingClassifier()
@@ -68,6 +71,10 @@ def test_my_naive_bayes():
     # train_test = get_rcv1_train_test()
 
     tr_X, te_X, tr_y, te_y = train_test
+
+    # Filtering
+    # tr_X = tr_X[tr_y <= 2]
+    # tr_y = tr_y[tr_y <= 2]
 
     nb = NaiveBayes()
     print("Fitting Naive Bayes ...")
