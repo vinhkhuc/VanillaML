@@ -21,9 +21,9 @@ class NaiveBayes(AbstractClassifier):
     def fit(self, tr_X, tr_y):
         """
         Fit model using the given training data set
-        ::param:: tr_X: numpy array of integers n x p (n - number of training samples, p - number of features)
-        ::param:: tr_y: numpy array n x 1
-        @return self
+        @param tr_X: numpy array of integers n x p (n - number of training samples, p - number of features)
+        @param tr_y: numpy array n x 1
+        @return: self NaiveBayes object
         """
         class_freq = Counter(tr_y)
         self._classes = np.array(sorted(class_freq.keys()))
@@ -47,23 +47,47 @@ class NaiveBayes(AbstractClassifier):
     def predict(self, te_X):
         """
         Predict outcomes for the testing set
-        ::param:: te_X: numpy array
-        @return predicted outcomes: numpy array n x 1
+        @param te_X: numpy array
+        @return: predicted outcomes: numpy array n x 1
         """
-        predictions = []
-        for i, test_sample in enumerate(te_X):
-            log_probs = np.array([self._logPX_C(test_sample, class_idx)
-                                  for class_idx in range(len(self._classes))])
-            predictions.append(log_probs.argmax())
-        return np.array(predictions)
+        # log_probs = self._compute_log_probs(te_X)
+        # return log_probs.argmax(axis=1)
+
+        # TODO: Uncomment the above block
+        # Here we just want to make sure that predict_proba is correctly implemented.
+        probs = self.predict_proba(te_X)
+        return probs.argmax(axis=1)
 
     def predict_proba(self, te_X):
         """
         Predict outcome's probabilities for the testing set
-        ::param:: te_X: numpy array
-        @return outcome's probabilities: numpy array n x c where c is the number of classes
+        @param te_X: numpy array
+        @return: outcome's probabilities:
+                 an Numpy array N x C where N is the number of samples, C is the number of classes
         """
-        pass
+        log_probs = self._compute_log_probs(te_X)
+        probs = np.empty_like(log_probs)
+        for i, log_prob in enumerate(log_probs):
+            probs[i] = np.exp(log_prob - NaiveBayes._log_sum_exp(log_prob))
+
+        return probs
+
+    def _compute_log_probs(self, te_X):
+        """
+        Compute log probabilities for each sample in te_X
+        @return: a Numpy array N x C
+        """
+        return np.array([[self._logPX_C(test_sample, class_idx)
+                         for class_idx in range(len(self._classes))]
+                         for i, test_sample in enumerate(te_X)])
+
+    @staticmethod
+    def _log_sum_exp(log_prob):
+        """
+        Computes log of sum of exps
+        """
+        max_val = log_prob.max()
+        return np.log(np.sum(np.exp(log_prob - max_val))) + max_val  # log(sum(exp)) + max :)
 
     def _smoothed_feature_freq(self, feat_idx, class_idx, smoothing_factor=1.):
         """

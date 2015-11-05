@@ -66,8 +66,8 @@ def test_sklearn():
 
 
 def test_my_naive_bayes():
-    # train_test = get_digits_train_test()
-    train_test = get_20newsgroup_train_test()
+    train_test = get_digits_train_test()
+    # train_test = get_20newsgroup_train_test()
     # train_test = get_rcv1_train_test()
 
     tr_X, te_X, tr_y, te_y = train_test
