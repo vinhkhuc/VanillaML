@@ -66,9 +66,16 @@ class NaiveBayes(AbstractClassifier):
                  an Numpy array N x C where N is the number of samples, C is the number of classes
         """
         log_probs = self._compute_log_probs(te_X)
-        probs = np.empty_like(log_probs)
-        for i, log_prob in enumerate(log_probs):
-            probs[i] = np.exp(log_prob - NaiveBayes._log_sum_exp(log_prob))
+
+        # probs = np.empty_like(log_probs)
+        # for i, log_prob in enumerate(log_probs):
+        #     probs[i] = np.exp(log_prob - NaiveBayes._log_sum_exp(log_prob))
+
+        # compute_prob = lambda log_prob: np.exp(log_prob - NaiveBayes._log_sum_exp(log_prob))
+        # probs = np.array([compute_prob(log_prob) for log_prob in enumerate(log_probs)])
+
+        probs = np.apply_along_axis(func1d=lambda log_prob: np.exp(log_prob - NaiveBayes._log_sum_exp(log_prob)),
+                                    axis=1, arr=log_probs)
 
         return probs
 
