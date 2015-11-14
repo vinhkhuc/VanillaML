@@ -4,9 +4,33 @@ import scipy as sp
 from collections import Counter
 from abstract_classifier import AbstractClassifier
 
-# Time complexity:
-#   Training time   = O(N * P), where N - number of training samples, P - number of features
-#   Prediction time =
+"""
+This is the implementation of Multinomial NB see section 2.1 in the paper:
+"Tackling the Poor Assumptions of Naive Bayes Text Classifiers"
+(http://people.csail.mit.edu/jrennie/papers/icml03-nb.pdf)
+
+TODO: Try to implement Complement Multinomial NB.
+"""
+
+"""
+* Accuracy:
+    + digits: 85.33%
+        ===> 70.44% with Complement Multinomial NB
+
+    + 20newsgroups (word frequency): 79.50%
+        ==> 82.69% after feature selection using LinearSVC(C=1., penalty="l1", dual=False)
+
+        ==> 87.78% with Complement Multinomial NB ???
+
+* For reference, using sklearn's MultinomialNB (much faster)
+    + digits: 88.89%
+    + 20newsgroups (word frequency): 83.01% (
+        ==> 86.19% after feature selection using LinearSVC(C=1., penalty="l1", dual=False)
+
+* Time complexity:
+   Training time   = O(N * P), where N - number of training samples, P - number of features
+   Prediction time =
+"""
 class NaiveBayes(AbstractClassifier):
 
     def __init__(self):
@@ -88,6 +112,10 @@ class NaiveBayes(AbstractClassifier):
                          for class_idx in range(len(self._classes))]
                          for i, test_sample in enumerate(te_X)])
 
+        # return np.array([[self._logPX_C_complement(test_sample, class_idx)
+        #                  for class_idx in range(len(self._classes))]
+        #                  for i, test_sample in enumerate(te_X)])
+
     @staticmethod
     def _log_sum_exp(log_prob):
         """
@@ -99,7 +127,6 @@ class NaiveBayes(AbstractClassifier):
     def _smoothed_feature_freq(self, feat_idx, class_idx, smoothing_factor=1.):
         """
         Computes count(w_i|C)
-        We assume count(w_j|C) = 1 if the feature w_j doesn't occur in the training sample from the class C
         """
         return smoothing_factor + self.feat_freq_by_class[class_idx].get(feat_idx, 0)
 
@@ -107,6 +134,8 @@ class NaiveBayes(AbstractClassifier):
         """
         Computes the conditional probability P(C|X) ~ P(X|C) * P(C)
                                                     ~ P(w_1|C) ... P(w_n|C) * P(C)
+
+        To see how P(w_1|C) is estimated, see section 3.4.3 p. 79 from Kevin Murphy's book
         """
         test_sample_cx = sp.sparse.coo_matrix(test_sample)
         feature_freqs = np.array([[feat_val, self._smoothed_feature_freq(feat_idx, class_idx)]
@@ -116,7 +145,45 @@ class NaiveBayes(AbstractClassifier):
         feature_probs = feature_freqs[:, 1]
         feature_probs /= feature_probs.sum()
 
-        log_prob_features = feature_freqs[:, 0] * np.log(feature_probs)
+        feature_vals = feature_freqs[:, 0]
+        log_prob_features = feature_vals * np.log(feature_probs)
         sum_log_prob_features = log_prob_features.sum()
 
+        # log_prob_features = np.log(feature_probs)
+        # sum_log_prob_features = log_prob_features.sum()
+
         return sum_log_prob_features + math.log(self._class_prior[class_idx])
+
+        # TODO: Model P(x_i_j | C) as a multinomial distribution. Will it give better accuracy?
+        # No, since the factor will be canceled out when we compute posterior probability
+
+        # # See Murphy's ebook p.88 for Multinomial Bayesian
+        # log_multinomial_factor = np.log((1 + np.arange(feature_vals.sum())).sum()) - np.sum(np.log(feature_vals))
+        #
+        # return log_multinomial_factor + sum_log_prob_features + math.log(self._class_prior[class_idx])
+
+    def _smoothed_feature_freq_complement(self, feat_idx, class_idx, smoothing_factor=1.):
+        """
+        Computes count(w_i|C~)
+        """
+        feat_freq_complement = sum([self.feat_freq_by_class[i].get(feat_idx, 0)
+                                    for i in range(len(self._classes)) if i != class_idx])
+        return smoothing_factor + feat_freq_complement
+
+    def _logPX_C_complement(self, test_sample, class_idx):
+        """
+        Computes the complement conditional probability P(C~|X)
+        """
+        test_sample_cx = sp.sparse.coo_matrix(test_sample)
+        feature_freqs = np.array([[feat_val, self._smoothed_feature_freq_complement(feat_idx, class_idx)]
+                                  for _, feat_idx, feat_val in zip(test_sample_cx.row,
+                                                                   test_sample_cx.col,
+                                                                   test_sample_cx.data)])
+        feature_probs = feature_freqs[:, 1]
+        feature_probs /= feature_probs.sum()
+
+        feature_vals = feature_freqs[:, 0]
+        log_prob_features = feature_vals * np.log(feature_probs)
+        sum_log_prob_features = log_prob_features.sum()
+
+        return -sum_log_prob_features + math.log(self._class_prior[class_idx])

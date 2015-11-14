@@ -1,12 +1,12 @@
 import numpy as np
 from sklearn import datasets
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.cross_validation import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.svm import LinearSVC
 
-from VanillaML.supervised.naive_bayes import NaiveBayes
+from VanillaML.classify.supervised.naive_bayes import NaiveBayes
+
 
 def _get_train_test_split(X, y):
     return train_test_split(X, y, test_size=0.25, random_state=10)
@@ -19,13 +19,22 @@ def get_digits_train_test():
     digits = datasets.load_digits()
     return _get_train_test_split(digits.data, digits.target)
 
-def get_20newsgroup_train_test():
+def get_20newsgroup_train_test(feature_selection=False):
     # twenty_newsgroups = datasets.fetch_20newsgroups_vectorized(subset="test")
     twenty_newsgroups = datasets.fetch_20newsgroups(subset="test")
 
     vectorizer = CountVectorizer(dtype=np.int16)
     X = vectorizer.fit_transform(twenty_newsgroups.data)
     y = twenty_newsgroups.target
+
+    if feature_selection:
+        print("X's old shape = {0}".format(X.shape))
+        feature_selector = LinearSVC(C=1., penalty="l1", dual=False)
+            # SelectKBest(chi2, k=100)
+        print("Doing feature selection using {0} ...".format(feature_selector))
+        X_new = feature_selector.fit_transform(X, y)
+        X = X_new
+        print("X's new shape = {0}".format(X.shape))
 
     return _get_train_test_split(X, y)
 
@@ -54,11 +63,13 @@ def test_sklearn():
     train_test = get_20newsgroup_train_test()
     # train_test = get_rcv1_train_test()
 
-    models = [MultinomialNB(fit_prior=False),
-              # LogisticRegression(),
-              # RandomForestClassifier(),
-              # GradientBoostingClassifier()
-              ]
+    models = [
+        # MultinomialNB(fit_prior=False),
+        BernoulliNB(fit_prior=False),
+        # LogisticRegression(),
+        # RandomForestClassifier(),
+        # GradientBoostingClassifier()
+    ]
 
     for model in models:
         accuracy = get_accuracy(model, train_test)
