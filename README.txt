@@ -1,2 +1,1 @@
-This repository is for keeping my implementations of standard machine learning techniques. All implementations are
-supposed to be simple. That said, there are no bell and whistle and that's where the name VanillaML comes from.
+VanillaML is for keeping my implementations of standard machine learning techniques. All implementations are supposed to be simple. That said, there are no bells and whistles.

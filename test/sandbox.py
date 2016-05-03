@@ -1,6 +1,8 @@
+import random
 import numpy as np
 from sklearn import datasets
 from sklearn.cross_validation import train_test_split
+from sklearn.datasets.samples_generator import make_moons
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.svm import LinearSVC
@@ -13,13 +15,28 @@ from classifier.supervised.naive_bayes import NaiveBayes
 def _get_train_test_split(X, y):
     return train_test_split(X, y, test_size=0.25, random_state=10)
 
+
+def get_xor_train_test(num_data_points=100):
+    X = np.zeros((num_data_points, 2))
+    y = np.zeros(num_data_points, dtype=int)
+    for i in range(num_data_points):
+        x = [random.randint(0, 1), random.randint(0, 1)]  # randomly generate 0, 1
+        X[i] = x
+        y[i] = x[0] ^ x[1]
+    print("X = %s\ny = %s" % (X, y))
+
+    return _get_train_test_split(X, y)
+
+
 def get_iris_train_test():
     iris = datasets.load_iris()
     return _get_train_test_split(iris.data, iris.target)
 
+
 def get_digits_train_test():
     digits = datasets.load_digits()
     return _get_train_test_split(digits.data, digits.target)
+
 
 def get_20newsgroup_train_test(feature_selection=False):
     # twenty_newsgroups = datasets.fetch_20newsgroups_vectorized(subset="test")
@@ -40,6 +57,7 @@ def get_20newsgroup_train_test(feature_selection=False):
 
     return _get_train_test_split(X, y)
 
+
 def get_rcv1_train_test():
     X, y = datasets.load_svmlight_file("../dataset/supervised/rcv1_train.multiclass")
 
@@ -48,6 +66,12 @@ def get_rcv1_train_test():
     y = y[y <= 2]
 
     return _get_train_test_split(X.toarray(), y)
+
+
+def get_moons_train_test():
+    X, y = make_moons(noise=0.3, random_state=0)
+    return _get_train_test_split(X, y)
+
 
 def get_accuracy(model, train_test):
     tr_X, te_X, tr_y, te_y = train_test
@@ -59,6 +83,7 @@ def get_accuracy(model, train_test):
     pred_y = model.run_qa(te_X)
 
     return (te_y == pred_y).mean()
+
 
 def test_sklearn():
     # train_test = get_digits_train_test()
@@ -99,12 +124,14 @@ def test_my_naive_bayes():
 
 
 def test_decision_tree():
-    train_X, test_X, train_y, test_y = get_iris_train_test()
+    # train_X, test_X, train_y, test_y = get_xor_train_test(50)
+    # train_X, test_X, train_y, test_y = get_iris_train_test()
+    train_X, test_X, train_y, test_y = get_moons_train_test()
     print("train_X's shape = %s, train_y's shape = %s" % (train_X.shape, train_y.shape))
     print("test_X's shape = %s, test_y's shape = %s" % (test_X.shape, test_y.shape))
 
-    # clf = DecisionTreeClassifier(max_depth=3, criterion='gini')
-    clf = sk_tree.DecisionTreeClassifier(max_depth=3, criterion='entropy')
+    clf = DecisionTreeClassifier(max_depth=3, criterion='gini')
+    # clf = sk_tree.DecisionTreeClassifier(max_depth=3, criterion='entropy')
     print("clf: %s" % clf)
 
     print("Fitting ...")
@@ -112,7 +139,7 @@ def test_decision_tree():
 
     print("Predicting ...")
     pred_y = clf.predict(test_X)
-    print("Accuracy = %f%%" % (100. * (test_y == pred_y).mean()))
+    print("Accuracy = %g%%" % (100. * (test_y == pred_y).mean()))
 
     # print("Tree structure\n")
     # clf.print_tree()

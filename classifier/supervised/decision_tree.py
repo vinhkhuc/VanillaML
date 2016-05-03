@@ -11,40 +11,43 @@ class DecisionTreeClassifier(AbstractClassifier):
         super(AbstractClassifier, self).__init__()
         self.max_depth = max_depth
         self.criterion = criterion
-        self.root = None  # root node
-        self.classes_ = None  # a list of classes
         self.verbose = verbose
+        self.classes_ = None  # a list of classes
+        self.root = None  # root node
 
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weight=None):
         assert len(X) == len(y), "Length mismatches: len(tr_X) = %d, len(tr_y) = %d" % (len(X), len(y))
-        assert y.dtype == np.int, "y must be integers"
         assert np.all(y >= 0), "y must be non-negative"
 
+        y = y.astype(int)
+
         self.classes_ = np.unique(y)
+        if sample_weight is None:
+            sample_weight = np.ones(len(y)) / float(len(y))
 
         # Fit the tree starting from the root node
         root = TreeNode()
-        self._fit_node(root, X, y, depth=0)
+        self._fit_node(root, X, y, sample_weight, depth=0)
         self.root = root
 
-    def _fit_node(self, node, X, y, depth):
+    def _fit_node(self, node, X, y, w, depth):
         """
         Recursively fit this node and its left/right child nodes if there is a good split.
         """
-        node.pred_prob = self._get_predicted_proba(y)
+        node.pred_prob = self._get_weighted_predict_proba(y, w)
 
         # Check for stopping condition
         if not self.is_stopping(X, y, depth):
             # Find the best split
-            j, t, l, r, min_cost_reduction = self._split(X, y)
+            j, t, l, r, min_cost_reduction = self._split(X, y, w)
 
             if _is_worth_splitting(X, y, j, t, l, r, min_cost_reduction):
                 # Save split feature and split value. Also initialize left and right child nodes.
                 node.split_feat, node.split_val, node.left, node.right = j, t, TreeNode(), TreeNode()
-                self._fit_node(node.left, X[l], y[l], depth + 1)
-                self._fit_node(node.right, X[r], y[r], depth + 1)
+                self._fit_node(node.left, X[l], y[l], w[l], depth + 1)
+                self._fit_node(node.right, X[r], y[r], w[r], depth + 1)
 
-    def _split(self, X, y):
+    def _split(self, X, y, w):
         """
         Find a split (based on the formula 16.5 from Kevin Murphy's book).
         """
@@ -62,26 +65,24 @@ class DecisionTreeClassifier(AbstractClassifier):
             for t in feature_values:
                 l = np.where(X_j <= t)[0]
                 r = np.where(X_j > t)[0]
-                delta = self._cost(y, criterion) - (len(l) * self._cost(y[l], criterion)
-                                                    + len(r) * self._cost(y[r], criterion)) / len(y)
+                delta = self._cost(y, w, criterion) - (len(l) * self._cost(y[l], w[l], criterion)
+                                                       + len(r) * self._cost(y[r], w[r], criterion)) / len(y)
                 if delta_max < delta:
                     j_max, t_max, l_max, r_max, delta_max = j, t, l, r, delta
         return j_max, t_max, l_max, r_max, delta_max
 
-    def _get_predicted_proba(self, y):
-        # Class distribution
-        y_prob = np.bincount(y) / float(len(y))
+    def _cost(self, y, w, criterion):
+        """ Cost function
 
-        # Fill zeros for classes that are not included in y
-        diff = len(self.classes_) - len(y_prob)
-        y_prob = np.pad(y_prob, (0, diff), mode='constant', constant_values=0)
-        return y_prob
+        Args:
+            y (ndarray): sample classes N x 1
+            w (ndarray): sample weights N x 1
+            criterion (str): split criterion
 
-    def _cost(self, y, criterion):
+        Returns:
+            float: cost corresponding to the given criterion.
         """
-        Cost function
-        """
-        y_prob = self._get_predicted_proba(y)
+        y_prob = self._get_weighted_predict_proba(y, w)
         if criterion == 'entropy':
             log2_y_prob = np.log2(y_prob)
             log2_y_prob[log2_y_prob == -np.inf] = 0  # replace -infs by zeros since they'll be eliminated anyway.
@@ -90,6 +91,25 @@ class DecisionTreeClassifier(AbstractClassifier):
             return np.sum(y_prob * (1 - y_prob))
         else:
             raise Exception("Criterion must be either entropy or gini.")
+
+    def _get_weighted_predict_proba(self, y, w):
+        """ Get weighted prediction probability.
+
+        Args:
+            y (ndarray): sample classes N x 1
+            w (ndarray): sample weights N x 1
+
+        Returns:
+            ndarray: weighted prediction probability.
+        """
+
+        # Class distribution
+        y_prob = np.bincount(y, w) / float(len(y))
+
+        # Fill zeros for classes that are not included in y
+        diff = len(self.classes_) - len(y_prob)
+        y_prob = np.pad(y_prob, (0, diff), mode='constant', constant_values=0)
+        return y_prob
 
     def predict_proba(self, X):
         y_pred = np.zeros((X.shape[0], len(self.classes_)))
