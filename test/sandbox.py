@@ -4,8 +4,10 @@ from sklearn.cross_validation import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.svm import LinearSVC
+from sklearn.tree import tree as sk_tree
 
-from VanillaML.classify.supervised.naive_bayes import NaiveBayes
+from classifier.supervised.decision_tree import DecisionTreeClassifier
+from classifier.supervised.naive_bayes import NaiveBayes
 
 
 def _get_train_test_split(X, y):
@@ -54,7 +56,7 @@ def get_accuracy(model, train_test):
     model.fit(tr_X, tr_y)
 
     print("Predicting ...")
-    pred_y = model.predict(te_X)
+    pred_y = model.run_qa(te_X)
 
     return (te_y == pred_y).mean()
 
@@ -94,8 +96,38 @@ def test_my_naive_bayes():
     print("Predicting ...")
     pred_y = nb.predict(te_X)
     print(te_y == pred_y).mean()
-    print("Done")
+
+
+def test_decision_tree():
+    train_X, test_X, train_y, test_y = get_iris_train_test()
+    print("train_X's shape = %s, train_y's shape = %s" % (train_X.shape, train_y.shape))
+    print("test_X's shape = %s, test_y's shape = %s" % (test_X.shape, test_y.shape))
+
+    # clf = DecisionTreeClassifier(max_depth=3, criterion='gini')
+    clf = sk_tree.DecisionTreeClassifier(max_depth=3, criterion='entropy')
+    print("clf: %s" % clf)
+
+    print("Fitting ...")
+    clf.fit(train_X, train_y)
+
+    print("Predicting ...")
+    pred_y = clf.predict(test_X)
+    print("Accuracy = %f%%" % (100. * (test_y == pred_y).mean()))
+
+    # print("Tree structure\n")
+    # clf.print_tree()
+
+    # print("Predicted: %s" % pred_y)
+    #
+    # prob_y = clf.predict_proba(test_X)
+    # print("prob_y: %s" % prob_y)
+
+    # for py, ty in zip(pred_y, test_y):
+    #     if py != ty:
+    #         print("Expected %d, got %d" % (py, ty))
 
 if __name__ == "__main__":
     # test_sklearn()
-    test_my_naive_bayes()
+    # test_my_naive_bayes()
+    test_decision_tree()
+    print("Done")
