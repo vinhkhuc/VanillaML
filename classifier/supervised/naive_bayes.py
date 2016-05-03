@@ -42,14 +42,14 @@ class NaiveBayes(AbstractClassifier):
         # A list of class prior
         self._class_prior = None
 
-    def fit(self, tr_X, tr_y):
+    def fit(self, X, y):
         """
-        Fit model using the given training data set
-        @param tr_X: numpy array of integers n x p (n - number of training samples, p - number of features)
-        @param tr_y: numpy array n x 1
+        Fit model using the given training data set.
+        @param X: numpy array of integers n x p (n - number of training samples, p - number of features)
+        @param y: numpy array n x 1
         @return: self NaiveBayes object
         """
-        class_freq = Counter(tr_y)
+        class_freq = Counter(y)
         self._classes = np.array(sorted(class_freq.keys()))
 
         self._class_prior = np.array([class_freq[_class] for _class in self._classes], dtype=np.float)
@@ -57,7 +57,7 @@ class NaiveBayes(AbstractClassifier):
 
         self.feat_freq_by_class = []
         for _class in self._classes:
-            tr_X_by_class = tr_X[tr_y == _class]
+            tr_X_by_class = X[y == _class]
             feat_freq = tr_X_by_class.sum(axis=0)  # sum by rows
 
             # Convert Numpy matrix to 1-D Numpy array
@@ -68,28 +68,14 @@ class NaiveBayes(AbstractClassifier):
 
         return self
 
-    def predict(self, te_X):
-        """
-        Predict outcomes for the testing set
-        @param te_X: numpy array
-        @return: predicted outcomes: numpy array n x 1
-        """
-        # log_probs = self._compute_log_probs(te_X)
-        # return log_probs.argmax(axis=1)
-
-        # TODO: Uncomment the above block
-        # Here we just want to make sure that predict_proba is correctly implemented.
-        probs = self.predict_proba(te_X)
-        return probs.argmax(axis=1)
-
-    def predict_proba(self, te_X):
+    def predict_proba(self, X):
         """
         Predict outcome's probabilities for the testing set
-        @param te_X: numpy array
+        @param X: numpy array
         @return: outcome's probabilities:
                  an Numpy array N x C where N is the number of samples, C is the number of classes
         """
-        log_probs = self._compute_log_probs(te_X)
+        log_probs = self._compute_log_probs(X)
 
         # probs = np.empty_like(log_probs)
         # for i, log_prob in enumerate(log_probs):
