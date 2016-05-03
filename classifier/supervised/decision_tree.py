@@ -2,8 +2,6 @@
 Decision tree works by recursively splitting the input space into regions
 and create local model for each region.
 """
-
-# TODO: Handle binary features
 import numpy as np
 from classifier.supervised.abstract_classifier import AbstractClassifier
 
@@ -19,6 +17,7 @@ class DecisionTreeClassifier(AbstractClassifier):
 
     def fit(self, X, y):
         assert len(X) == len(y), "Length mismatches: len(tr_X) = %d, len(tr_y) = %d" % (len(X), len(y))
+        assert y.dtype == np.int, "y must be integers"
         assert np.all(y >= 0), "y must be non-negative"
 
         self.classes_ = np.unique(y)
@@ -67,11 +66,10 @@ class DecisionTreeClassifier(AbstractClassifier):
                                                     + len(r) * self._cost(y[r], criterion)) / len(y)
                 if delta_max < delta:
                     j_max, t_max, l_max, r_max, delta_max = j, t, l, r, delta
-
         return j_max, t_max, l_max, r_max, delta_max
 
     def _get_predicted_proba(self, y):
-        # print("y's shape = %s" % (y.shape, ))
+        # Class distribution
         y_prob = np.bincount(y) / float(len(y))
 
         # Fill zeros for classes that are not included in y
