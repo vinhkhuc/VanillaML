@@ -49,6 +49,7 @@ class NaiveBayes(AbstractClassifier):
         @param y: numpy array n x 1
         @return: self NaiveBayes object
         """
+        super(NaiveBayes, self).fit(X, y)
         class_freq = Counter(y)
         self._classes = np.array(sorted(class_freq.keys()))
 
@@ -101,14 +102,6 @@ class NaiveBayes(AbstractClassifier):
         # return np.array([[self._logPX_C_complement(test_sample, class_idx)
         #                  for class_idx in range(len(self._classes))]
         #                  for i, test_sample in enumerate(te_X)])
-
-    @staticmethod
-    def _log_sum_exp(log_prob):
-        """
-        Computes log of sum of exps
-        """
-        max_val = log_prob.max()
-        return np.log(np.sum(np.exp(log_prob - max_val))) + max_val  # log(sum(exp)) + max :)
 
     def _smoothed_feature_freq(self, feat_idx, class_idx, smoothing_factor=1.):
         """
@@ -173,3 +166,11 @@ class NaiveBayes(AbstractClassifier):
         sum_log_prob_features = log_prob_features.sum()
 
         return -sum_log_prob_features + math.log(self._class_prior[class_idx])
+
+
+def _log_sum_exp(log_prob):
+    """
+    Computes log of sum of exps
+    """
+    max_val = log_prob.max()
+    return np.log(np.sum(np.exp(log_prob - max_val))) + max_val  # log(sum(exp)) + max :)
