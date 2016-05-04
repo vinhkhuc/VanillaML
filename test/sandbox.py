@@ -6,8 +6,10 @@ from sklearn.datasets.samples_generator import make_moons
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.svm import LinearSVC
-from sklearn.tree import tree as sk_tree
+from sklearn.tree.tree import DecisionTreeClassifier as skDecisionTreeClassifier
+from sklearn.ensemble.weight_boosting import AdaBoostClassifier as skAdaBoostClassifier
 
+from classifier.supervised.adaboost import AdaBoostClassifier
 from classifier.supervised.decision_tree import DecisionTreeClassifier
 from classifier.supervised.naive_bayes import NaiveBayes
 
@@ -130,8 +132,8 @@ def test_decision_tree():
     print("train_X's shape = %s, train_y's shape = %s" % (train_X.shape, train_y.shape))
     print("test_X's shape = %s, test_y's shape = %s" % (test_X.shape, test_y.shape))
 
-    clf = DecisionTreeClassifier(max_depth=3, criterion='gini')
-    # clf = sk_tree.DecisionTreeClassifier(max_depth=3, criterion='entropy')
+    # clf = DecisionTreeClassifier(max_depth=1, criterion='entropy')
+    clf = skDecisionTreeClassifier(max_depth=1, criterion='entropy')
     print("clf: %s" % clf)
 
     print("Fitting ...")
@@ -153,8 +155,30 @@ def test_decision_tree():
     #     if py != ty:
     #         print("Expected %d, got %d" % (py, ty))
 
+
+def test_adaboost():
+    train_X, test_X, train_y, test_y = get_moons_train_test()
+
+    base_clf = DecisionTreeClassifier(max_depth=1, criterion="entropy")  # decision stump
+    # base_clf = skDecisionTreeClassifier(max_depth=1, criterion="entropy")
+    #
+    clf = AdaBoostClassifier(base_clf, num_rounds=50)
+    # clf = skAdaBoostClassifier(base_clf, n_estimators=50, algorithm='SAMME')
+    # clf = base_clf
+
+    print("Fitting ...")
+    clf.fit(train_X, train_y)
+
+    print("Predicting ...")
+    y_pred = clf.predict(test_X)
+
+    print("Predictions = %s" % y_pred)
+    print("Correct = %s" % test_y)
+    print("Accuracy = %g%%" % (100. * np.mean(y_pred == test_y)))
+
 if __name__ == "__main__":
     # test_sklearn()
     # test_my_naive_bayes()
     test_decision_tree()
+    # test_adaboost()
     print("Done")

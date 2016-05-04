@@ -5,23 +5,24 @@ and create local model for each region.
 import numpy as np
 from classifier.supervised.abstract_classifier import AbstractClassifier
 
+np.seterr(divide='ignore')  # ignore the warning message caused by calling log(0)
+
+
+# FIXME: sklearn's decision tree gave 76% accuracy while ours got 72% for the moon dataset:
+# train_X, test_X, train_y, test_y = get_moons_train_test()
 class DecisionTreeClassifier(AbstractClassifier):
 
     def __init__(self, max_depth=3, criterion='entropy', verbose=False):
-        super(AbstractClassifier, self).__init__()
+        super(DecisionTreeClassifier, self).__init__()
         self.max_depth = max_depth
         self.criterion = criterion
         self.verbose = verbose
-        self.classes_ = None  # a list of classes
         self.root = None  # root node
 
     def fit(self, X, y, sample_weight=None):
-        assert len(X) == len(y), "Length mismatches: len(tr_X) = %d, len(tr_y) = %d" % (len(X), len(y))
-        assert np.all(y >= 0), "y must be non-negative"
+        super(DecisionTreeClassifier, self).fit(X, y)
 
         y = y.astype(int)
-
-        self.classes_ = np.unique(y)
         if sample_weight is None:
             sample_weight = np.ones(len(y)) / float(len(y))
 
@@ -107,12 +108,12 @@ class DecisionTreeClassifier(AbstractClassifier):
         y_prob = np.bincount(y, w) / float(len(y))
 
         # Fill zeros for classes that are not included in y
-        diff = len(self.classes_) - len(y_prob)
+        diff = len(self._classes) - len(y_prob)
         y_prob = np.pad(y_prob, (0, diff), mode='constant', constant_values=0)
         return y_prob
 
     def predict_proba(self, X):
-        y_pred = np.zeros((X.shape[0], len(self.classes_)))
+        y_pred = np.zeros((X.shape[0], len(self._classes)))
         queue = [(self.root, np.arange(len(X)))]  # breadth-first traverse
 
         while len(queue) > 0:
