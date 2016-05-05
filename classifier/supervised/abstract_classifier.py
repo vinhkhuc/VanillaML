@@ -1,7 +1,5 @@
 from abc import ABCMeta, abstractmethod
 
-import numpy as np
-
 
 class AbstractClassifier(object):
     """
@@ -9,22 +7,16 @@ class AbstractClassifier(object):
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self):
-        self._classes = None
-        pass
-
     @abstractmethod
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weights=None):
         """ Fit the model using the given training data set with n data points and p features.
 
         Args:
             X (ndarray): training data set, shape N x P.
             y (ndarray): training labels, shape N x 1.
-
+            sample_weights (Optional[ndarray]): sample weights, shape N x 1.
         """
-        assert len(X) == len(y), "Length mismatches: len(X) = %d, len(y) = %d" % (len(X), len(y))
-        assert np.all(y >= 0), "y must be non-negative"
-        self._classes = np.unique(y)
+        pass
 
     @abstractmethod
     def predict_proba(self, X):
@@ -34,13 +26,13 @@ class AbstractClassifier(object):
             X (ndarray): test set, shape M x P.
 
         Returns:
-            ndarray: outcome's probabilities: numpy array n x c where c is the number of classes
+            ndarray: outcome's probabilities, shape N x C where C is the number of classes.
 
         """
         pass
 
     def predict(self, X):
-        """ Predict outcomes for the testing set.
+        """ Predict outcomes for the test set.
 
         Args:
             X (ndarray): test set, shape M x P.

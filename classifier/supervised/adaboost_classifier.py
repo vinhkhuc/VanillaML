@@ -22,8 +22,9 @@ class AdaBoostClassifier(AbstractClassifier):
         self.alphas = []
         self.hs = []  # hypotheses
 
-    def fit(self, X, y):
-        super(AdaBoostClassifier, self).fit(X, y)
+    def fit(self, X, y, sample_weights=None):
+        assert sample_weights is None, "Sample weights are not supported by AdaBoost " \
+                                       "since they are computed adaptively."
 
         N = len(X)
         D = np.ones(N) / N
@@ -31,7 +32,7 @@ class AdaBoostClassifier(AbstractClassifier):
         for i in range(self.num_rounds):
             # Create a new base classifier with the same settings
             hs_i = copy.copy(self.base_clf)
-            hs_i.fit(X, y, sample_weight=D)
+            hs_i.fit(X, y, sample_weights=D)
 
             # Fit and get weighted errors
             pred_y = hs_i.predict(X)

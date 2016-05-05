@@ -4,7 +4,7 @@ Random forest classifier
 import numpy as np
 
 from classifier.supervised.abstract_classifier import AbstractClassifier
-from classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
+from classifier.supervised.decision_tree_classifier import DecisionTreeBaseClassifier
 
 
 class RandomForestClassifier(AbstractClassifier):
@@ -23,12 +23,12 @@ class RandomForestClassifier(AbstractClassifier):
         assert min_leaf_samples > 0, "Minimum number of samples in leaf nodes must be positive."
         assert 0 < rand_features_ratio <= 1, "Ratio of random features must be in (0, 1]."
 
-        tree = DecisionTreeClassifier(max_depth=max_depth,
-                                      criterion=criterion,
-                                      min_leaf_samples=min_leaf_samples,
-                                      rand_features_ratio=rand_features_ratio,
-                                      rand_state=rand_state,
-                                      verbose=verbose)
+        tree = DecisionTreeBaseClassifier(max_depth=max_depth,
+                                          criterion=criterion,
+                                          min_leaf_samples=min_leaf_samples,
+                                          rand_features_ratio=rand_features_ratio,
+                                          rand_state=rand_state,
+                                          verbose=verbose)
         self.trees = [tree] * num_trees
         self.rand_samples_ratio = rand_samples_ratio
         np.random.seed(rand_state)
@@ -45,16 +45,12 @@ class RandomForestClassifier(AbstractClassifier):
                 rand_samples.sort()
                 X = X[rand_samples, :]
                 y = y[rand_samples]
-
             # Fit
             tree.fit(X, y)
 
     def predict_proba(self, X):
         # Get prediction probability for each decision tree
         y_prob_trees = np.array([tree.predict_proba(X) for tree in self.trees])
-
-        print("y_prob_trees = %s" % y_prob_trees)
-        print("y_prob_trees.mean(axis=0)\n%s" % y_prob_trees.mean(axis=0))
 
         # Return probability average
         return y_prob_trees.mean(axis=0)

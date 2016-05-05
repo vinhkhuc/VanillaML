@@ -13,7 +13,7 @@ from sklearn.ensemble.gradient_boosting import GradientBoostingClassifier as skG
 from sklearn.ensemble.forest import RandomForestClassifier as skRandomForestClassifier
 
 from classifier.supervised.adaboost_classifier import AdaBoostClassifier
-from classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
+from classifier.supervised.decision_tree_classifier import DecisionTreeBaseClassifier
 from classifier.supervised.naive_bayes_classifier import NaiveBayesClassifier
 from classifier.supervised.random_forest_classifier import RandomForestClassifier
 
@@ -164,7 +164,7 @@ def test_decision_tree():
 def test_adaboost():
     train_X, test_X, train_y, test_y = get_moons_train_test()
 
-    base_clf = DecisionTreeClassifier(max_depth=1, criterion="entropy")  # decision stump
+    base_clf = DecisionTreeBaseClassifier(max_depth=1, criterion="entropy")  # decision stump
     # base_clf = skDecisionTreeClassifier(max_depth=1, criterion="entropy")
     #
     clf = AdaBoostClassifier(base_clf, num_rounds=50)
@@ -224,8 +224,8 @@ def test_gradient_boosting():
 if __name__ == "__main__":
     # test_sklearn()
     # test_my_naive_bayes()
-    # test_decision_tree()
+    test_decision_tree()
     # test_adaboost()
-    test_random_forest()
+    # test_random_forest()
     # test_gradient_boosting()
     print("Done")
