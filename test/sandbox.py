@@ -8,6 +8,8 @@ from sklearn.naive_bayes import BernoulliNB
 from sklearn.svm import LinearSVC
 from sklearn.tree.tree import DecisionTreeClassifier as skDecisionTreeClassifier
 from sklearn.ensemble.weight_boosting import AdaBoostClassifier as skAdaBoostClassifier
+from sklearn.ensemble.gradient_boosting import GradientBoostingClassifier as skGradientBoostingClassifier
+from sklearn.ensemble.gradient_boosting import GradientBoostingClassifier as skGradientBoostingRegressor
 
 from classifier.supervised.adaboost import AdaBoostClassifier
 from classifier.supervised.decision_tree import DecisionTreeClassifier
@@ -176,9 +178,29 @@ def test_adaboost():
     print("Correct = %s" % test_y)
     print("Accuracy = %g%%" % (100. * np.mean(y_pred == test_y)))
 
+
+def test_gradient_boosting():
+    train_X, test_X, train_y, test_y = get_moons_train_test()
+
+    # clf = GradientBoostingClassifier(base_clf, num_rounds=50)
+    clf = skGradientBoostingClassifier(n_estimators=50)
+    # clf = DecisionTreeClassifier(max_depth=10)
+
+    print("Fitting ...")
+    clf.fit(train_X, train_y)
+
+    print("Predicting ...")
+    y_pred = clf.predict(test_X)
+
+    print("Predictions = %s" % y_pred)
+    print("Correct = %s" % test_y)
+    print("Accuracy = %g%%" % (100. * np.mean(y_pred == test_y)))
+
+
 if __name__ == "__main__":
     # test_sklearn()
     # test_my_naive_bayes()
-    test_decision_tree()
+    # test_decision_tree()
     # test_adaboost()
+    test_gradient_boosting()
     print("Done")

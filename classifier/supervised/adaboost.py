@@ -8,7 +8,7 @@ from classifier.supervised.abstract_classifier import AbstractClassifier
 SMALL_EPS = 1e-10
 
 """
-Classic AdaBoost which is a binary classifier.
+This is the classic AdaBoost, i.e. AdaBoostM1 (binary classifier).
 Ref: Algorithm 1.1 (p.5) in the book "Boosting: Foundations and Algorithms" (by Robert E. Schapire and Yoav Freund).
 """
 class AdaBoostClassifier(AbstractClassifier):
