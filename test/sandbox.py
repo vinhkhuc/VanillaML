@@ -10,10 +10,12 @@ from sklearn.tree.tree import DecisionTreeClassifier as skDecisionTreeClassifier
 from sklearn.ensemble.weight_boosting import AdaBoostClassifier as skAdaBoostClassifier
 from sklearn.ensemble.gradient_boosting import GradientBoostingClassifier as skGradientBoostingClassifier
 from sklearn.ensemble.gradient_boosting import GradientBoostingClassifier as skGradientBoostingRegressor
+from sklearn.ensemble.forest import RandomForestClassifier as skRandomForestClassifier
 
 from classifier.supervised.adaboost import AdaBoostClassifier
 from classifier.supervised.decision_tree import DecisionTreeClassifier
 from classifier.supervised.naive_bayes import NaiveBayes
+from classifier.supervised.random_forest import RandomForestClassifier
 
 
 def _get_train_test_split(X, y):
@@ -129,13 +131,13 @@ def test_my_naive_bayes():
 
 def test_decision_tree():
     # train_X, test_X, train_y, test_y = get_xor_train_test(50)
-    # train_X, test_X, train_y, test_y = get_iris_train_test()
-    train_X, test_X, train_y, test_y = get_moons_train_test()
+    train_X, test_X, train_y, test_y = get_iris_train_test()
+    # train_X, test_X, train_y, test_y = get_moons_train_test()
     print("train_X's shape = %s, train_y's shape = %s" % (train_X.shape, train_y.shape))
     print("test_X's shape = %s, test_y's shape = %s" % (test_X.shape, test_y.shape))
 
-    # clf = DecisionTreeClassifier(max_depth=1, criterion='entropy')
-    clf = skDecisionTreeClassifier(max_depth=1, criterion='entropy')
+    clf = DecisionTreeClassifier(max_depth=1, criterion='entropy')
+    # clf = skDecisionTreeClassifier(max_depth=1, criterion='entropy', min_samples_split=1, min_samples_leaf=1)
     print("clf: %s" % clf)
 
     print("Fitting ...")
@@ -179,6 +181,23 @@ def test_adaboost():
     print("Accuracy = %g%%" % (100. * np.mean(y_pred == test_y)))
 
 
+def test_random_forest():
+    train_X, test_X, train_y, test_y = get_moons_train_test()
+
+    clf = RandomForestClassifier(num_trees=1)
+    # clf = skRandomForestClassifier(n_estimators=50)
+
+    print("Fitting ...")
+    clf.fit(train_X, train_y)
+
+    print("Predicting ...")
+    y_pred = clf.predict(test_X)
+
+    print("Predictions = %s" % y_pred)
+    print("Correct = %s" % test_y)
+    print("Accuracy = %g%%" % (100. * np.mean(y_pred == test_y)))
+
+
 def test_gradient_boosting():
     train_X, test_X, train_y, test_y = get_moons_train_test()
 
@@ -202,5 +221,6 @@ if __name__ == "__main__":
     # test_my_naive_bayes()
     # test_decision_tree()
     # test_adaboost()
-    test_gradient_boosting()
+    test_random_forest()
+    # test_gradient_boosting()
     print("Done")
