@@ -12,12 +12,31 @@ np.seterr(divide='ignore')  # ignore the warning message caused by calling log(0
 # train_X, test_X, train_y, test_y = get_moons_train_test()
 class DecisionTreeClassifier(AbstractClassifier):
 
-    def __init__(self, max_depth=3, criterion='entropy', verbose=False):
+    def __init__(self,
+                 max_depth=3,
+                 criterion='entropy',
+                 min_leaf_samples=1,
+                 rand_features_ratio=None,
+                 rand_state=42,
+                 verbose=False):
         super(DecisionTreeClassifier, self).__init__()
+
+        assert min_leaf_samples > 0, \
+            "Minimum number of samples in leaf nodes must be positive."
+
+        assert rand_features_ratio is None or 0 < rand_features_ratio <= 1, \
+            "Ratio of random features must be in (0, 1]."
+
         self.max_depth = max_depth
         self.criterion = criterion
+        self.min_leaf_node = min_leaf_samples
+        self.rand_features_ratio = rand_features_ratio
         self.verbose = verbose
         self.root = None  # root node
+
+        # Set random state if random features will be used (i.e. for random forest).
+        if rand_features_ratio is not None:
+            np.random.seed(rand_state)
 
     def fit(self, X, y, sample_weight=None):
         super(DecisionTreeClassifier, self).fit(X, y)
@@ -42,7 +61,7 @@ class DecisionTreeClassifier(AbstractClassifier):
             # Find the best split
             j, t, l, r, min_cost_reduction = self._split(X, y, w)
 
-            if _is_worth_splitting(X, y, j, t, l, r, min_cost_reduction):
+            if self._is_worth_splitting(X, y, j, t, l, r, min_cost_reduction):
                 # Save split feature and split value. Also initialize left and right child nodes.
                 node.split_feat, node.split_val, node.left, node.right = j, t, TreeNode(), TreeNode()
                 self._fit_node(node.left, X[l], y[l], w[l], depth + 1)
@@ -57,10 +76,19 @@ class DecisionTreeClassifier(AbstractClassifier):
         l_max = None  # indices of data points in the left child node
         r_max = None  # for the right child node
         delta_max = float("-inf")
-
         criterion = self.criterion
-        num_features = X.shape[1]
-        for j in range(num_features):
+
+        # Select a random subset of features if ratio_rand_features is specified.
+        total_features = X.shape[1]
+        if self.rand_features_ratio is None:
+            features = range(total_features)
+        else:
+            num_rand_features = int(total_features * self.rand_features_ratio)
+            features = np.random.choice(total_features, size=num_rand_features, replace=False)
+            features.sort()
+
+        # Find the best split
+        for j in features:
             X_j = X[:, j]
             feature_values = np.unique(X_j)
             for t in feature_values:
@@ -97,15 +125,16 @@ class DecisionTreeClassifier(AbstractClassifier):
         """ Get weighted prediction probability.
 
         Args:
-            y (ndarray): sample classes N x 1
-            w (ndarray): sample weights N x 1
+            y (ndarray): sample classes, shape N.
+            w (ndarray): sample weights, shape N.
 
         Returns:
             ndarray: weighted prediction probability.
         """
 
         # Class distribution
-        y_prob = np.bincount(y, w) / float(len(y))
+        y_weighted_count = np.bincount(y, w)
+        y_prob = y_weighted_count / sum(y_weighted_count)
 
         # Fill zeros for classes that are not included in y
         diff = len(self._classes) - len(y_prob)
@@ -142,11 +171,18 @@ class DecisionTreeClassifier(AbstractClassifier):
             stopping = True
             if self.verbose:
                 print("Max depth has been reached. Stop splitting further.")
-        elif len(X) == 0:
+        elif len(X) < self.min_leaf_node:
             stopping = True
             if self.verbose:
                 print("This node has no training data to make a split.")
         return stopping
+
+    def _is_worth_splitting(self, X, y, j, t, l, r, min_cost_reduction):
+        """
+        Check the best split is worth considering.
+        Always return True for now.
+        """
+        return True  # assume that the best split is always worth considering.
 
     def print_tree(self):
         assert self.root is not None, "The tree has not been fitted!"
@@ -159,14 +195,6 @@ class TreeNode(object):
     split_val = None    # split value
     left = None         # left child
     right = None        # right child
-
-
-def _is_worth_splitting(X, y, j, t, l, r, min_cost_reduction):
-    """
-    Check the best split is worth considering.
-    Always return True for now.
-    """
-    return True  # assume that the best split is always worth considering.
 
 
 def _get_node_structure(node, depth):
