@@ -2,13 +2,14 @@
 Decision tree works by recursively splitting the input space into regions and create local model for each region.
 """
 import numpy as np
-from abc import ABCMeta, abstractmethod
 
 
 class DecisionTreeBase(object):
     """
     Base class for Decision Tree Classifier/Regressor.
     """
+    ALLOWED_CRITERIA = {'gini', 'entropy', 'mse'}
+
     def __init__(self,
                  max_depth=3,
                  criterion=None,
@@ -16,6 +17,9 @@ class DecisionTreeBase(object):
                  rand_features_ratio=None,
                  rand_state=42,
                  verbose=False):
+
+        assert criterion in DecisionTreeBase.ALLOWED_CRITERIA, \
+            "The split criterion '%s' is not supported." % criterion
 
         assert min_leaf_samples > 0, \
             "Minimum number of samples in leaf nodes must be positive."
@@ -29,7 +33,10 @@ class DecisionTreeBase(object):
         self.rand_features_ratio = rand_features_ratio
         self.verbose = verbose
         self.root = None  # root node
-        self._classes = None
+
+        self.is_classifier = criterion == 'gini' or criterion == 'entropy'
+        if self.is_classifier:
+            self._classes = None
 
         # Set random state if random features will be used (i.e. for random forest).
         if rand_features_ratio is not None:
@@ -40,7 +47,8 @@ class DecisionTreeBase(object):
         assert len(X) == len(y), "Length mismatches: len(X) = %d, len(y) = %d" % (len(X), len(y))
         assert np.all(y >= 0), "y must be non-negative"
 
-        self._classes = np.unique(y)
+        if self.is_classifier:
+            self._classes = np.unique(y)
 
         y = y.astype(int)
         if sample_weights is None:
@@ -55,7 +63,7 @@ class DecisionTreeBase(object):
         """
         Recursively fit this node and its left/right child nodes if there is a good split.
         """
-        node.pred_prob = self._get_weighted_predict_proba(y, w)
+        node.pred = self._get_weighted_proba(y, w)
 
         # Check for stopping condition
         if not self.is_stopping(X, y, depth):
@@ -111,10 +119,22 @@ class DecisionTreeBase(object):
 
         Returns:
             float: cost corresponding to the given criterion.
-        """
-        pass
 
-    def _get_weighted_predict_proba(self, y, w):
+        """
+        if self.is_classifier:
+            y_prob = self._get_weighted_proba(y, w)
+            if criterion == 'gini':
+                return np.sum(y_prob * (1 - y_prob))
+            else:
+                log2_y_prob = np.log2(y_prob)
+                # Replace -infs by zeros since they'll be eliminated anyway.
+                log2_y_prob[log2_y_prob == -np.inf] = 0
+                return -np.sum(y_prob * log2_y_prob)
+        else:
+            weighted_mean = np.average(y, weights=w)
+            return np.mean(np.square(y - weighted_mean))
+
+    def _get_weighted_proba(self, y, w):
         """ Get weighted prediction probability.
 
         Args:
@@ -134,7 +154,7 @@ class DecisionTreeBase(object):
         y_prob = np.pad(y_prob, (0, diff), mode='constant', constant_values=0)
         return y_prob
 
-    def predict_proba(self, X):
+    def predict(self, X):
         y_pred = np.zeros((X.shape[0], len(self._classes)))
         queue = [(self.root, np.arange(len(X)))]  # breadth-first traversal
 
@@ -144,7 +164,7 @@ class DecisionTreeBase(object):
             # Check if this is a leaf node.
             # Non-leaf node has BOTH left AND right child nodes.
             if node.left is None and node.right is None:
-                y_pred[indices] = node.pred_prob
+                y_pred[indices] = node.pred
             else:
                 # Non-leaf node
                 j, t = node.split_feat, node.split_val
@@ -179,33 +199,36 @@ class DecisionTreeBase(object):
 
     def print_tree(self):
         assert self.root is not None, "The tree has not been fitted!"
-        print("ROOT: %s" % _get_node_structure(self.root, depth=0))
+        print("ROOT: %s" % self._get_node_structure(self.root, depth=0))
+
+    def _get_node_structure(self, node, depth):
+        """ Recursively get tree structure.
+
+        Args:
+            node (TreeNode): current node.
+            depth (int): current node's depth.
+
+        Returns:
+            str: tree structure starting from the given node.
+
+        """
+        if self.is_classifier:
+            s = "\t[%s]\tlabel=%d\n" % (", ".join(["%.2g" % val for val in node.pred]), node.pred.argmax())
+        else:
+            s = "\t[%g]\n" % node.pred
+
+        if node.left is not None:
+            s += "|\t" * depth + "|--- feature[%d] <= %g: %s" % (node.split_feat, node.split_val,
+                                                                 self._get_node_structure(node.left, depth + 1))
+        if node.right is not None:
+            s += "|\t" * depth + "|--- feature[%d] > %g: %s" % (node.split_feat, node.split_val,
+                                                                self._get_node_structure(node.right, depth + 1))
+        return s
 
 
 class TreeNode(object):
-    pred_prob = None    # node's predicted probability
+    pred = None         # node's prediction
     split_feat = None   # split feature
     split_val = None    # split value
     left = None         # left child
     right = None        # right child
-
-
-def _get_node_structure(node, depth):
-    """ Recursively get tree structure.
-
-    Args:
-        node (TreeNode): current node.
-        depth (int): current node's depth.
-
-    Returns:
-        str: tree structure starting from the given node.
-
-    """
-    s = "\t[%s]\tlabel=%d\n" % (", ".join(["%.2g" % prob for prob in node.pred_prob]), node.pred_prob.argmax())
-    if node.left is not None:
-        s += "|\t" * depth + "|--- feature[%d] <= %g: %s" % (node.split_feat, node.split_val,
-                                                             _get_node_structure(node.left, depth + 1))
-    if node.right is not None:
-        s += "|\t" * depth + "|--- feature[%d] > %g: %s" % (node.split_feat, node.split_val,
-                                                            _get_node_structure(node.right, depth + 1))
-    return s
