@@ -12,10 +12,10 @@ from sklearn.ensemble.gradient_boosting import GradientBoostingClassifier as skG
 from sklearn.ensemble.gradient_boosting import GradientBoostingClassifier as skGradientBoostingRegressor
 from sklearn.ensemble.forest import RandomForestClassifier as skRandomForestClassifier
 
-from classifier.supervised.adaboost import AdaBoostClassifier
-from classifier.supervised.decision_tree import DecisionTreeClassifier
-from classifier.supervised.naive_bayes import NaiveBayes
-from classifier.supervised.random_forest import RandomForestClassifier
+from classifier.supervised.adaboost_classifier import AdaBoostClassifier
+from classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
+from classifier.supervised.naive_bayes_classifier import NaiveBayesClassifier
+from classifier.supervised.random_forest_classifier import RandomForestClassifier
 
 
 def _get_train_test_split(X, y):
@@ -120,7 +120,7 @@ def test_my_naive_bayes():
     # tr_X = tr_X[tr_y <= 2]
     # tr_y = tr_y[tr_y <= 2]
 
-    nb = NaiveBayes()
+    nb = NaiveBayesClassifier()
     print("Fitting Naive Bayes ...")
     nb.fit(tr_X, tr_y)
 

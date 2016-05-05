@@ -4,7 +4,7 @@ Random forest classifier
 import numpy as np
 
 from classifier.supervised.abstract_classifier import AbstractClassifier
-from classifier.supervised.decision_tree import DecisionTreeClassifier
+from classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
 
 
 class RandomForestClassifier(AbstractClassifier):

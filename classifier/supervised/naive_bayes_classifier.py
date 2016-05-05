@@ -31,10 +31,10 @@ TODO: Try to implement Complement Multinomial NB.
    Training time   = O(N * P), where N - number of training samples, P - number of features
    Prediction time =
 """
-class NaiveBayes(AbstractClassifier):
+class NaiveBayesClassifier(AbstractClassifier):
 
     def __init__(self):
-        super(NaiveBayes, self).__init__()
+        super(NaiveBayesClassifier, self).__init__()
 
         # A list of dictionaries mapping each feature to its per-class frequency
         self.feat_freq_by_class = None
@@ -49,7 +49,7 @@ class NaiveBayes(AbstractClassifier):
         @param y: numpy array n x 1
         @return: self NaiveBayes object
         """
-        super(NaiveBayes, self).fit(X, y)
+        super(NaiveBayesClassifier, self).fit(X, y)
         class_freq = Counter(y)
         self._classes = np.array(sorted(class_freq.keys()))
 
@@ -85,7 +85,7 @@ class NaiveBayes(AbstractClassifier):
         # compute_prob = lambda log_prob: np.exp(log_prob - NaiveBayes._log_sum_exp(log_prob))
         # probs = np.array([compute_prob(log_prob) for log_prob in enumerate(log_probs)])
 
-        probs = np.apply_along_axis(func1d=lambda log_prob: np.exp(log_prob - NaiveBayes._log_sum_exp(log_prob)),
+        probs = np.apply_along_axis(func1d=lambda log_prob: np.exp(log_prob - _log_sum_exp(log_prob)),
                                     axis=1, arr=log_probs)
 
         return probs
