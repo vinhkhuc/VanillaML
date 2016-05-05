@@ -74,8 +74,8 @@ def get_rcv1_train_test():
     return _get_train_test_split(X.toarray(), y)
 
 
-def get_moons_train_test():
-    X, y = make_moons(noise=0.3, random_state=0)
+def get_moons_train_test(num_samples=100):
+    X, y = make_moons(n_samples=num_samples, noise=0.3, random_state=0)
     return _get_train_test_split(X, y)
 
 
@@ -131,13 +131,13 @@ def test_my_naive_bayes():
 
 def test_decision_tree():
     # train_X, test_X, train_y, test_y = get_xor_train_test(50)
-    train_X, test_X, train_y, test_y = get_iris_train_test()
-    # train_X, test_X, train_y, test_y = get_moons_train_test()
+    # train_X, test_X, train_y, test_y = get_iris_train_test()
+    train_X, test_X, train_y, test_y = get_moons_train_test(num_samples=200)
     print("train_X's shape = %s, train_y's shape = %s" % (train_X.shape, train_y.shape))
     print("test_X's shape = %s, test_y's shape = %s" % (test_X.shape, test_y.shape))
 
-    clf = DecisionTreeClassifier(max_depth=1, criterion='entropy')
-    # clf = skDecisionTreeClassifier(max_depth=1, criterion='entropy', min_samples_split=1, min_samples_leaf=1)
+    # clf = DecisionTreeClassifier(max_depth=1, criterion='entropy')
+    clf = skDecisionTreeClassifier(max_depth=1, criterion='entropy', min_samples_split=1, min_samples_leaf=1)
     print("clf: %s" % clf)
 
     print("Fitting ...")
@@ -145,6 +145,7 @@ def test_decision_tree():
 
     print("Predicting ...")
     pred_y = clf.predict(test_X)
+    print("prob_y = %s" % clf.predict_proba(test_X))
     print("Accuracy = %g%%" % (100. * (test_y == pred_y).mean()))
 
     # print("Tree structure\n")
@@ -182,10 +183,14 @@ def test_adaboost():
 
 
 def test_random_forest():
-    train_X, test_X, train_y, test_y = get_moons_train_test()
+    # train_X, test_X, train_y, test_y = get_xor_train_test(50)
+    # train_X, test_X, train_y, test_y = get_iris_train_test()
+    train_X, test_X, train_y, test_y = get_moons_train_test(200)
+    print("train_X's shape = %s, train_y's shape = %s" % (train_X.shape, train_y.shape))
+    print("test_X's shape = %s, test_y's shape = %s" % (test_X.shape, test_y.shape))
 
-    clf = RandomForestClassifier(num_trees=1)
-    # clf = skRandomForestClassifier(n_estimators=50)
+    # clf = RandomForestClassifier(num_trees=20, max_depth=3, criterion='entropy', rand_state=42)
+    clf = skRandomForestClassifier(n_estimators=20, max_depth=3, criterion='entropy', random_state=42)
 
     print("Fitting ...")
     clf.fit(train_X, train_y)

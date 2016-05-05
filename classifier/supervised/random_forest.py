@@ -50,11 +50,11 @@ class RandomForestClassifier(AbstractClassifier):
             tree.fit(X, y)
 
     def predict_proba(self, X):
-        # Get probability prediction for each decision tree
+        # Get prediction probability for each decision tree
         y_prob_trees = np.array([tree.predict_proba(X) for tree in self.trees])
 
         print("y_prob_trees = %s" % y_prob_trees)
-        print("y_prob_trees.mean(axis=2) = %s" % y_prob_trees.mean(axis=2))
+        print("y_prob_trees.mean(axis=0)\n%s" % y_prob_trees.mean(axis=0))
 
         # Return probability average
-        return y_prob_trees.mean(axis=2)
+        return y_prob_trees.mean(axis=0)

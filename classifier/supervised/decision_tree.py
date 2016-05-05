@@ -125,15 +125,16 @@ class DecisionTreeClassifier(AbstractClassifier):
         """ Get weighted prediction probability.
 
         Args:
-            y (ndarray): sample classes N x 1
-            w (ndarray): sample weights N x 1
+            y (ndarray): sample classes, shape N.
+            w (ndarray): sample weights, shape N.
 
         Returns:
             ndarray: weighted prediction probability.
         """
 
         # Class distribution
-        y_prob = np.bincount(y, w) / float(len(y))
+        y_weighted_count = np.bincount(y, w)
+        y_prob = y_weighted_count / sum(y_weighted_count)
 
         # Fill zeros for classes that are not included in y
         diff = len(self._classes) - len(y_prob)
