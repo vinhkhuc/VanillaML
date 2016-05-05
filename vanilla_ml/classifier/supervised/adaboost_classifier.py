@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 
-from classifier.supervised.abstract_classifier import AbstractClassifier
+from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
 
 SMALL_EPS = 1e-10
 

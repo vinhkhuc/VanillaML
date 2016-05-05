@@ -3,8 +3,8 @@ Random forest classifier
 """
 import numpy as np
 
-from classifier.supervised.abstract_classifier import AbstractClassifier
-from classifier.supervised.decision_tree_classifier import DecisionTreeBaseClassifier
+from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
+from vanilla_ml.classifier.supervised.decision_tree_classifier import DecisionTreeBaseClassifier
 
 
 class RandomForestClassifier(AbstractClassifier):

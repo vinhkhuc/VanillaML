@@ -9,8 +9,6 @@ class DecisionTreeBase(object):
     """
     Base class for Decision Tree Classifier/Regressor.
     """
-    __metaclass__ = ABCMeta
-
     def __init__(self,
                  max_depth=3,
                  criterion=None,
@@ -103,7 +101,6 @@ class DecisionTreeBase(object):
                     j_max, t_max, l_max, r_max, delta_max = j, t, l, r, delta
         return j_max, t_max, l_max, r_max, delta_max
 
-    @abstractmethod
     def _cost(self, y, w, criterion):
         """ Cost function
 

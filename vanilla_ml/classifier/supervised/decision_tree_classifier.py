@@ -4,8 +4,8 @@ and create local model for each region.
 """
 import numpy as np
 
-from base.decision_tree import DecisionTreeBase
-from classifier.supervised.abstract_classifier import AbstractClassifier
+from vanilla_ml.base.decision_tree import DecisionTreeBase
+from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
 
 np.seterr(divide='ignore')  # ignore the warning message caused by calling log(0)
 

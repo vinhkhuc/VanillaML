@@ -1,7 +1,7 @@
 import numpy as np
 
-from base.decision_tree import DecisionTreeBase
-from regression.abstract_regressor import AbstractRegressor
+from vanilla_ml.base.decision_tree import DecisionTreeBase
+from vanilla_ml.regression.abstract_regressor import AbstractRegressor
 
 
 class DecisionTreeBaseRegressor(AbstractRegressor, DecisionTreeBase):
