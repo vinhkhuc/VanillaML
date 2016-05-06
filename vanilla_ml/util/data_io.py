@@ -69,6 +69,11 @@ def get_moons_train_test(num_samples=100):
     return _get_train_test_split(X, y)
 
 
+def get_boston_train_test():
+    boston = datasets.load_boston()
+    return _get_train_test_split(boston.data, boston.target)
+
+
 def get_accuracy(model, train_test):
     tr_X, te_X, tr_y, te_y = train_test
 

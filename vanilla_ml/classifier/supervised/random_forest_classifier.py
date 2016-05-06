@@ -4,7 +4,7 @@ Random forest classifier
 import numpy as np
 
 from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
-from vanilla_ml.classifier.supervised.decision_tree_classifier import DecisionTreeBaseClassifier
+from vanilla_ml.classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
 
 
 class RandomForestClassifier(AbstractClassifier):
@@ -23,12 +23,12 @@ class RandomForestClassifier(AbstractClassifier):
         assert min_leaf_samples > 0, "Minimum number of samples in leaf nodes must be positive."
         assert 0 < rand_features_ratio <= 1, "Ratio of random features must be in (0, 1]."
 
-        tree = DecisionTreeBaseClassifier(max_depth=max_depth,
-                                          criterion=criterion,
-                                          min_leaf_samples=min_leaf_samples,
-                                          rand_features_ratio=rand_features_ratio,
-                                          rand_state=rand_state,
-                                          verbose=verbose)
+        tree = DecisionTreeClassifier(max_depth=max_depth,
+                                      criterion=criterion,
+                                      min_leaf_samples=min_leaf_samples,
+                                      rand_features_ratio=rand_features_ratio,
+                                      rand_state=rand_state,
+                                      verbose=verbose)
         self.trees = [tree] * num_trees
         self.rand_samples_ratio = rand_samples_ratio
         np.random.seed(rand_state)

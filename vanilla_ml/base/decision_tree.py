@@ -29,7 +29,7 @@ class DecisionTreeBase(object):
 
         self.max_depth = max_depth
         self.criterion = criterion
-        self.min_leaf_node = min_leaf_samples
+        self.min_leaf_samples = min_leaf_samples
         self.rand_features_ratio = rand_features_ratio
         self.verbose = verbose
         self.root = None  # root node
@@ -63,10 +63,13 @@ class DecisionTreeBase(object):
         """
         Recursively fit this node and its left/right child nodes if there is a good split.
         """
-        node.pred = self._get_weighted_proba(y, w)
+        if self.is_classifier:
+            node.pred = self._get_weighted_proba(y, w)
+        else:
+            node.pred = self._get_weighted_average(y, w)
 
         # Check for stopping condition
-        if not self.is_stopping(X, y, depth):
+        if not self._is_stopping(X, y, depth):
             # Find the best split
             j, t, l, r, min_cost_reduction = self._split(X, y, w)
 
@@ -107,6 +110,7 @@ class DecisionTreeBase(object):
                                                        + len(r) * self._cost(y[r], w[r], criterion)) / len(y)
                 if delta_max < delta:
                     j_max, t_max, l_max, r_max, delta_max = j, t, l, r, delta
+
         return j_max, t_max, l_max, r_max, delta_max
 
     def _cost(self, y, w, criterion):
@@ -131,20 +135,23 @@ class DecisionTreeBase(object):
                 log2_y_prob[log2_y_prob == -np.inf] = 0
                 return -np.sum(y_prob * log2_y_prob)
         else:
-            weighted_mean = np.average(y, weights=w)
-            return np.mean(np.square(y - weighted_mean))
+            if len(y) == 0:
+                return 0
+            else:
+                weighted_mean = np.average(y, weights=w)
+                return np.mean(np.square(y - weighted_mean))
 
     def _get_weighted_proba(self, y, w):
         """ Get weighted prediction probability.
 
         Args:
-            y (ndarray): sample classes, shape N.
-            w (ndarray): sample weights, shape N.
+            y (ndarray): sample classes, shape N x 1.
+            w (ndarray): sample weights, shape N x 1.
 
         Returns:
             ndarray: weighted prediction probability.
-        """
 
+        """
         # Class distribution
         y_weighted_count = np.bincount(y, w)
         y_prob = y_weighted_count / sum(y_weighted_count)
@@ -154,10 +161,28 @@ class DecisionTreeBase(object):
         y_prob = np.pad(y_prob, (0, diff), mode='constant', constant_values=0)
         return y_prob
 
-    def predict(self, X):
-        y_pred = np.zeros((X.shape[0], len(self._classes)))
-        queue = [(self.root, np.arange(len(X)))]  # breadth-first traversal
+    @staticmethod
+    def _get_weighted_average(y, w):
+        """ Get weighted average.
 
+        Args:
+            y (ndarray): sample values, shape N x 1.
+            w (ndarray): sample weights, shape N x 1.
+
+        Returns:
+            ndarray: weighted average.
+
+        """
+        return np.average(y, weights=w)
+
+    def predict(self, X):
+
+        if self.is_classifier:
+            y_pred = np.zeros((X.shape[0], len(self._classes)))
+        else:
+            y_pred = np.zeros(X.shape[0])
+
+        queue = [(self.root, np.arange(len(X)))]  # breadth-first traversal
         while len(queue) > 0:
             node, indices = queue.pop(0)
 
@@ -178,13 +203,13 @@ class DecisionTreeBase(object):
                     queue.append((node.right, right_indices))
         return y_pred
 
-    def is_stopping(self, X, y, depth):
+    def _is_stopping(self, X, y, depth):
         stopping = False
         if depth == self.max_depth:
             stopping = True
             if self.verbose:
                 print("Max depth has been reached. Stop splitting further.")
-        elif len(X) < self.min_leaf_node:
+        elif len(X) < self.min_leaf_samples:
             stopping = True
             if self.verbose:
                 print("This node has no training data to make a split.")
@@ -193,9 +218,11 @@ class DecisionTreeBase(object):
     def _is_worth_splitting(self, X, y, j, t, l, r, min_cost_reduction):
         """
         Check the best split is worth considering.
-        Always return True for now.
         """
-        return True  # assume that the best split is always worth considering.
+        worth_splitting = True
+        if len(l) < self.min_leaf_samples or len(r) < self.min_leaf_samples:
+            worth_splitting = False
+        return worth_splitting
 
     def print_tree(self):
         assert self.root is not None, "The tree has not been fitted!"

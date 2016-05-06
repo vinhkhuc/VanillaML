@@ -1,10 +1,8 @@
-import numpy as np
-
 from vanilla_ml.base.decision_tree import DecisionTreeBase
 from vanilla_ml.regression.abstract_regressor import AbstractRegressor
 
 
-class DecisionTreeBaseRegressor(AbstractRegressor, DecisionTreeBase):
+class DecisionTreeRegressor(AbstractRegressor, DecisionTreeBase):
 
     def __init__(self,
                  max_depth=3,
@@ -16,8 +14,8 @@ class DecisionTreeBaseRegressor(AbstractRegressor, DecisionTreeBase):
 
         assert criterion == 'mse', "The criterion '%s' is not supported by DecisionTreeRegressor." % criterion
 
-        super(DecisionTreeBaseRegressor, self).__init__(max_depth, criterion, min_leaf_samples,
-                                                        rand_features_ratio, rand_state, verbose)
+        super(DecisionTreeRegressor, self).__init__(max_depth, criterion, min_leaf_samples,
+                                                    rand_features_ratio, rand_state, verbose)
 
     def fit(self, X, y, sample_weights=None):
         DecisionTreeBase.fit(self, X, y, sample_weights)

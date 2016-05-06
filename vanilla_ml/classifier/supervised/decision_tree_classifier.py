@@ -12,7 +12,7 @@ np.seterr(divide='ignore')  # ignore the warning message caused by calling log(0
 
 # FIXME: sklearn's decision tree gave 76% accuracy while ours got 72% for the moon dataset:
 # train_X, test_X, train_y, test_y = get_moons_train_test()
-class DecisionTreeBaseClassifier(AbstractClassifier, DecisionTreeBase):
+class DecisionTreeClassifier(AbstractClassifier, DecisionTreeBase):
 
     def __init__(self,
                  max_depth=3,
@@ -25,8 +25,8 @@ class DecisionTreeBaseClassifier(AbstractClassifier, DecisionTreeBase):
         assert criterion == 'entropy' or criterion == 'gini', \
             "The criterion '%s' is not supported by DecisionTreeClassifier." % criterion
 
-        super(DecisionTreeBaseClassifier, self).__init__(max_depth, criterion, min_leaf_samples,
-                                                         rand_features_ratio, rand_state, verbose)
+        super(DecisionTreeClassifier, self).__init__(max_depth, criterion, min_leaf_samples,
+                                                     rand_features_ratio, rand_state, verbose)
 
     def fit(self, X, y, sample_weights=None):
         DecisionTreeBase.fit(self, X, y, sample_weights)

@@ -6,7 +6,7 @@ from sklearn.tree.tree import DecisionTreeClassifier as skDecisionTreeClassifier
 
 from vanilla_ml.util import data_io
 from vanilla_ml.classifier.supervised.adaboost_classifier import AdaBoostClassifier
-from vanilla_ml.classifier.supervised.decision_tree_classifier import DecisionTreeBaseClassifier
+from vanilla_ml.classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
 from vanilla_ml.classifier.supervised.naive_bayes_classifier import NaiveBayesClassifier
 
 
@@ -52,7 +52,7 @@ def test_my_naive_bayes():
 def test_adaboost():
     train_X, test_X, train_y, test_y = data_io.get_moons_train_test()
 
-    base_clf = DecisionTreeBaseClassifier(max_depth=1, criterion="entropy")  # decision stump
+    base_clf = DecisionTreeClassifier(max_depth=1, criterion="entropy")  # decision stump
     # base_clf = skDecisionTreeClassifier(max_depth=1, criterion="entropy")
     #
     clf = AdaBoostClassifier(base_clf, num_rounds=50)

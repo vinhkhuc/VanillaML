@@ -7,9 +7,6 @@ class AbstractRegressor(object):
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self):
-        pass
-
     @abstractmethod
     def fit(self, X, y):
         """ Fit the model using the given training data set with n data points and p features.
@@ -19,7 +16,7 @@ class AbstractRegressor(object):
             y (ndarray): training labels, shape N x 1.
 
         """
-        assert len(X) == len(y), "Length mismatches: len(X) = %d, len(y) = %d" % (len(X), len(y))
+        pass
 
     @abstractmethod
     def predict(self, X):
