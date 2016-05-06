@@ -1,13 +1,13 @@
 """
-Random forest classifier
+Random forest works by averaging results of multiples small decision trees.
 """
 import numpy as np
 
+from vanilla_ml.base.random_forest import RandomForestBase
 from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
-from vanilla_ml.classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
 
 
-class RandomForestClassifier(AbstractClassifier):
+class RandomForestClassifier(RandomForestBase, AbstractClassifier):
 
     def __init__(self,
                  num_trees=10,
@@ -18,39 +18,21 @@ class RandomForestClassifier(AbstractClassifier):
                  rand_features_ratio=0.7,
                  rand_state=42,
                  verbose=False):
-        super(RandomForestClassifier, self).__init__()
+        super(RandomForestClassifier, self).__init__(num_trees,
+                                                     max_depth,
+                                                     criterion,
+                                                     min_leaf_samples,
+                                                     rand_samples_ratio,
+                                                     rand_features_ratio,
+                                                     rand_state,
+                                                     verbose)
 
-        assert min_leaf_samples > 0, "Minimum number of samples in leaf nodes must be positive."
-        assert 0 < rand_features_ratio <= 1, "Ratio of random features must be in (0, 1]."
-
-        tree = DecisionTreeClassifier(max_depth=max_depth,
-                                      criterion=criterion,
-                                      min_leaf_samples=min_leaf_samples,
-                                      rand_features_ratio=rand_features_ratio,
-                                      rand_state=rand_state,
-                                      verbose=verbose)
-        self.trees = [tree] * num_trees
-        self.rand_samples_ratio = rand_samples_ratio
-        np.random.seed(rand_state)
-
-    def fit(self, X, y):
-        super(RandomForestClassifier, self).fit(X, y)
-
-        for tree in self.trees:
-            # Select a random subset of samples if bagging is used
-            if self.rand_samples_ratio is not None:
-                total_samples = X.shape[0]
-                num_rand_samples = int(total_samples * self.rand_samples_ratio)
-                rand_samples = np.random.randint(0, num_rand_samples)
-                rand_samples.sort()
-                X = X[rand_samples, :]
-                y = y[rand_samples]
-            # Fit
-            tree.fit(X, y)
+    def fit(self, X, y, sample_weights=None):
+        super(RandomForestClassifier, self).fit(X, y, sample_weights)
 
     def predict_proba(self, X):
         # Get prediction probability for each decision tree
         y_prob_trees = np.array([tree.predict_proba(X) for tree in self.trees])
 
-        # Return probability average
+        # Return averaged probability
         return y_prob_trees.mean(axis=0)
