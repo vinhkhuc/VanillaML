@@ -42,6 +42,8 @@ class NaiveBayesClassifier(AbstractClassifier):
         # A list of class prior
         self._class_prior = None
 
+        self._classes = None
+
     def fit(self, X, y):
         """
         Fit model using the given training data set.

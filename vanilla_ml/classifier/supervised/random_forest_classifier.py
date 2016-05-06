@@ -3,8 +3,8 @@ Random forest classifier
 """
 import numpy as np
 
-from classifier.supervised.abstract_classifier import AbstractClassifier
-from classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
+from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
+from vanilla_ml.classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
 
 
 class RandomForestClassifier(AbstractClassifier):
@@ -45,16 +45,12 @@ class RandomForestClassifier(AbstractClassifier):
                 rand_samples.sort()
                 X = X[rand_samples, :]
                 y = y[rand_samples]
-
             # Fit
             tree.fit(X, y)
 
     def predict_proba(self, X):
         # Get prediction probability for each decision tree
         y_prob_trees = np.array([tree.predict_proba(X) for tree in self.trees])
-
-        print("y_prob_trees = %s" % y_prob_trees)
-        print("y_prob_trees.mean(axis=0)\n%s" % y_prob_trees.mean(axis=0))
 
         # Return probability average
         return y_prob_trees.mean(axis=0)
