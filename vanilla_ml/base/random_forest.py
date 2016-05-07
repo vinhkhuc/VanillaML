@@ -27,21 +27,24 @@ class RandomForestBase(object):
         np.random.seed(rand_state)
 
         is_classifier = criterion == 'gini' or criterion == 'entropy'
-        if is_classifier:
-            tree = DecisionTreeClassifier(max_depth=max_depth,
-                                          criterion=criterion,
-                                          min_leaf_samples=min_leaf_samples,
-                                          rand_features_ratio=rand_features_ratio,
-                                          rand_state=rand_state,
-                                          verbose=verbose)
-        else:
-            tree = DecisionTreeRegressor(max_depth=max_depth,
-                                         criterion=criterion,
-                                         min_leaf_samples=min_leaf_samples,
-                                         rand_features_ratio=rand_features_ratio,
-                                         rand_state=rand_state,
-                                         verbose=verbose)
-        self.trees = [tree] * num_trees
+
+        self.trees = []
+        for _ in range(num_trees):
+            if is_classifier:
+                tree = DecisionTreeClassifier(max_depth=max_depth,
+                                              criterion=criterion,
+                                              min_leaf_samples=min_leaf_samples,
+                                              rand_features_ratio=rand_features_ratio,
+                                              rand_state=rand_state,
+                                              verbose=verbose)
+            else:
+                tree = DecisionTreeRegressor(max_depth=max_depth,
+                                             criterion=criterion,
+                                             min_leaf_samples=min_leaf_samples,
+                                             rand_features_ratio=rand_features_ratio,
+                                             rand_state=rand_state,
+                                             verbose=verbose)
+            self.trees.append(tree)
 
     def fit(self, X, y, sample_weights=None):
         for tree in self.trees:

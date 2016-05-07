@@ -45,9 +45,9 @@ class DecisionTreeBase(object):
     def fit(self, X, y, sample_weights=None):
 
         assert len(X) == len(y), "Length mismatches: len(X) = %d, len(y) = %d" % (len(X), len(y))
-        assert np.all(y >= 0), "y must be non-negative"
 
         if self.is_classifier:
+            assert np.all(y >= 0), "y must be non-negative"
             self._classes = np.unique(y)
 
         y = y.astype(int)

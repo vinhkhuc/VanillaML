@@ -1,5 +1,6 @@
 """
-Random forest works by averaging results of multiples small decision trees.
+Random forest works by averaging results of multiples small decision trees. Each tree is fitted using
+a random subset of training data set and each tree's node is split based on a random set of features.
 """
 import numpy as np
 
