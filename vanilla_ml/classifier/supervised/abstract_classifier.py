@@ -20,7 +20,7 @@ class AbstractClassifier(object):
 
     @abstractmethod
     def predict_proba(self, X):
-        """ Predict outcome's probabilities for the testing set.
+        """ Predict outcome's probabilities for the test set.
 
         Args:
             X (ndarray): test set, shape M x P.

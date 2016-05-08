@@ -3,8 +3,9 @@ import random
 import numpy as np
 from sklearn import datasets
 from sklearn.cross_validation import train_test_split
-from sklearn.datasets.samples_generator import make_moons
+from sklearn.datasets.samples_generator import make_moons, make_blobs
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing.data import StandardScaler
 from sklearn.svm import LinearSVC
 
 
@@ -65,13 +66,21 @@ def get_rcv1_train_test():
 
 
 def get_moons_train_test(num_samples=100):
-    X, y = make_moons(n_samples=num_samples, noise=0.3, random_state=0)
+    X, y = make_moons(n_samples=num_samples, noise=0.3, random_state=42)
     return _get_train_test_split(X, y)
 
 
 def get_boston_train_test():
     boston = datasets.load_boston()
     return _get_train_test_split(boston.data, boston.target)
+
+
+def get_clustering_data(n_samples=750, centers=None, cluster_std=0.4, random_state=42):
+    if centers is None:
+        centers = [[1, 1], [-1, -1], [1, -1]]
+    X, y = make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std, random_state=random_state)
+    X = StandardScaler().fit_transform(X)
+    return X, y
 
 
 def get_accuracy(model, train_test):

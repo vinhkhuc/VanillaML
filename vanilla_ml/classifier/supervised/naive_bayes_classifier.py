@@ -73,7 +73,7 @@ class NaiveBayesClassifier(AbstractClassifier):
 
     def predict_proba(self, X):
         """
-        Predict outcome's probabilities for the testing set
+        Predict outcome's probabilities for the test set
         @param X: numpy array
         @return: outcome's probabilities:
                  an Numpy array N x C where N is the number of samples, C is the number of classes
