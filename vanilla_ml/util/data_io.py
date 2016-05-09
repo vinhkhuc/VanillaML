@@ -30,6 +30,21 @@ def get_iris_train_test():
     return _get_train_test_split(iris.data, iris.target)
 
 
+def get_setosa_vericolour_iris_train_test():
+    iris = datasets.load_iris()
+    orig_X, orig_y = iris.data, iris.target
+
+    # Setosa = 0, Vericolour = 1 (ref: https://archive.ics.uci.edu/ml/datasets/Iris)
+    X = orig_X[orig_y != 2]
+    y = orig_y[orig_y != 2]
+
+    # X = orig_X[orig_y != 0]
+    # y = orig_y[orig_y != 0]
+    # y -= 1
+
+    return _get_train_test_split(X, y)
+
+
 def get_digits_train_test():
     digits = datasets.load_digits()
     return _get_train_test_split(digits.data, digits.target)

@@ -1,18 +1,21 @@
+"""
+This is the classic AdaBoost, i.e. AdaBoostM1 (binary classifier).
+
+Ref: Algorithm 1.1 (p.5) in the book "Boosting: Foundations and Algorithms"
+     Robert E. Schapire and Yoav Freund.
+"""
 import copy
 import math
 
 import numpy as np
 
 from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
+from vanilla_ml.util.misc import sign_prediction, unsign_prediction
 
 SMALL_EPS = 1e-10
 
-"""
-This is the classic AdaBoost, i.e. AdaBoostM1 (binary classifier).
-Ref: Algorithm 1.1 (p.5) in the book "Boosting: Foundations and Algorithms" (by Robert E. Schapire and Yoav Freund).
-"""
-class AdaBoostClassifier(AbstractClassifier):
 
+class AdaBoostClassifier(AbstractClassifier):
     def __init__(self, base_clf, num_rounds, verbose=False):
         super(AdaBoostClassifier, self).__init__()
 
@@ -50,7 +53,7 @@ class AdaBoostClassifier(AbstractClassifier):
             alphas_i = 0.5 * math.log((1 - eps + SMALL_EPS) / (eps + SMALL_EPS))
 
             # Update instance weights
-            yh_i = _sign_pred(y) * _sign_pred(pred_y)
+            yh_i = sign_prediction(y) * sign_prediction(pred_y)
             exp_alphas = np.exp(-alphas_i * yh_i)
             D *= exp_alphas
             D /= sum(D)
@@ -72,23 +75,10 @@ class AdaBoostClassifier(AbstractClassifier):
                 print("train_errors = %g" % train_errors)
 
     def predict(self, X):
-        hxs = np.array([_sign_pred(hs_i.predict(X)) for hs_i in self.hs])
+        hxs = np.array([sign_prediction(hs_i.predict(X)) for hs_i in self.hs])
         tmp = np.dot(hxs.T, self.alphas)
         sign_pred_y = np.sign(tmp)
-        return _unsign_pred(sign_pred_y)
+        return unsign_prediction(sign_pred_y)
 
     def predict_proba(self, X):
         raise Exception("AdaBoostClassifier")
-
-def _sign_pred(y):
-    """
-    Maps {0, 1} to {-1, 1}.
-    """
-    return 2 * y - 1
-
-
-def _unsign_pred(y):
-    """
-    Maps {-1, 1} to {0, 1}.
-    """
-    return (y + 1) / 2
