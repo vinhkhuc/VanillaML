@@ -1,7 +1,5 @@
 import unittest
 
-import numpy as np
-
 from vanilla_ml.classifier.unsupervised.kmeans import KMeans
 from vanilla_ml.util import data_io
 from vanilla_ml.util.metrics.cluster_purity import cluster_purity
@@ -29,24 +27,6 @@ class TestKMeans(unittest.TestCase):
         print("Cluster purity = %.2f%%" % (100. * purity))
         self.assertGreaterEqual(purity, 0.9)
 
-        ##############################################################################
-        # Plot result
-        import matplotlib.pyplot as plt
-
-        # Black removed and is used for noise instead.
-        unique_labels = set(pred_y)
-        colors = plt.cm.Spectral(np.linspace(0, 1, len(unique_labels)))
-        for k, col in zip(unique_labels, colors):
-            if k == -1:
-                # Black used for noise.
-                col = 'k'
-            class_member_mask = pred_y == k
-            xy = X[class_member_mask]
-            plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=col,
-                     markeredgecolor='k', markersize=10)
-
-        plt.title('Estimated number of clusters: %d' % n_clusters)
-        plt.show()
 
 if __name__ == '__main__':
     unittest.main()

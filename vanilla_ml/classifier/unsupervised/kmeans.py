@@ -3,6 +3,7 @@ KMeans clustering
 """
 import numpy as np
 from vanilla_ml.classifier.unsupervised.abstract_clustering import AbstractClustering
+from vanilla_ml.util.distances import compute_dist_matrix
 
 
 class KMeans(AbstractClustering):
@@ -54,7 +55,7 @@ class KMeans(AbstractClustering):
             cluster_centroids /= cluster_sizes[:, None]
 
             # Reassign samples to new clusters
-            dist_matrix = _get_dist_matrix(X, cluster_centroids, self.distance)
+            dist_matrix = compute_dist_matrix(X, cluster_centroids, self.distance)
             next_y = dist_matrix.argmin(axis=1)
 
             # Check if clusters have changed
@@ -68,43 +69,5 @@ class KMeans(AbstractClustering):
         self.cluster_centroids = cluster_centroids
 
     def predict(self, X):
-        dist_matrix = _get_dist_matrix(X, self.cluster_centroids, self.distance)
+        dist_matrix = compute_dist_matrix(X, self.cluster_centroids, self.distance)
         return dist_matrix.argmin(axis=1)
-
-
-def _get_dist_matrix(X, cluster_centroids, distance):
-    """ Calculate a distance matrix so that each matrix element m[i][j] is
-    the distance between X[i] and centroids[j].
-
-    Args:
-        X (ndarray): samples, shape N x P.
-        cluster_centroids (ndarray): cluster centroids, shape K x P.
-        distance (str): distance type.
-
-    Returns:
-        ndarray: distance matrix, shape N x K.
-
-    """
-    N, K = X.shape[0], cluster_centroids.shape[0]
-    dist_matrix = np.zeros((N, K))
-    for i in range(N):
-        for k in range(K):
-            dist_matrix[i][k] = _get_dist(X[i], cluster_centroids[k], distance=distance)
-    return dist_matrix
-
-
-def _get_dist(x, y, distance):
-    """ Get distance between two data points.
-
-    Args:
-        x (ndarray): data point, shape P
-        y (ndarray): data point, shape P
-        distance (str): distance type
-
-    Returns:
-        float: distance between the given two data points
-    """
-    if distance == 'l2':
-        return np.sqrt(np.sum(np.square(x - y)))
-    else:
-        raise Exception("The distance '%s' is not supported." % distance)

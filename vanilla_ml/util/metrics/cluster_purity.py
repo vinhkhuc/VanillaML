@@ -1,6 +1,3 @@
-"""
-Cluster purity:
-"""
 import numpy as np
 
 
