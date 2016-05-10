@@ -41,5 +41,5 @@ class AbstractClassifier(object):
             ndarray: predicted outcomes, shape N x 1.
 
         """
-        y_pred = self.predict_proba(X)
-        return y_pred.argmax(axis=1)
+        y_pred_proba = self.predict_proba(X)
+        return y_pred_proba.argmax(axis=1)

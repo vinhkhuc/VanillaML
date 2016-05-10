@@ -28,9 +28,9 @@ def get_penalty(X, factor, type):
     assert factor > 0, "The penalty factor must be positive."
 
     if type == 'l1':
-        return factor * np.sum(np.abs(X))
+        raise Exception("L1 penalty is not supported yet!")
     elif type == 'l2':
-        return factor * np.inner(X, X)
+        return 2 * factor * X
     else:
         raise Exception("The penalty '%s' is not supported!" % type)
 

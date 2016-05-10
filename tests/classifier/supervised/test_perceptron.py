@@ -1,6 +1,5 @@
 import unittest
 
-from vanilla_ml.classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
 from vanilla_ml.classifier.supervised.perceptron import Perceptron
 from vanilla_ml.util import data_io
 from vanilla_ml.util.metrics.accuracy import accuracy_score

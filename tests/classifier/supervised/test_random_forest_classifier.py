@@ -3,7 +3,9 @@ import unittest
 from vanilla_ml.classifier.supervised.random_forest_classifier import RandomForestClassifier
 from vanilla_ml.util import data_io
 
+
 class TestRandomForestClassifier(unittest.TestCase):
+
     def test_two_moons(self):
         train_X, test_X, train_y, test_y = data_io.get_moons_train_test(num_samples=200)
         print("train_X's shape = %s, train_y's shape = %s" % (train_X.shape, train_y.shape))

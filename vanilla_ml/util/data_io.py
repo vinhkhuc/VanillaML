@@ -10,7 +10,7 @@ from sklearn.svm import LinearSVC
 
 
 def _get_train_test_split(X, y):
-    return train_test_split(X, y, test_size=0.25, random_state=10)
+    return train_test_split(X, y, test_size=0.25, random_state=42)
 
 
 def get_xor_train_test(num_data_points=100):
@@ -38,9 +38,17 @@ def get_setosa_vericolour_iris_train_test():
     X = orig_X[orig_y != 2]
     y = orig_y[orig_y != 2]
 
-    # X = orig_X[orig_y != 0]
-    # y = orig_y[orig_y != 0]
-    # y -= 1
+    return _get_train_test_split(X, y)
+
+
+def get_vericolour_virginica_iris_train_test():
+    iris = datasets.load_iris()
+    orig_X, orig_y = iris.data, iris.target
+
+    # Vericolour = 1, Virginica = 2 (ref: https://archive.ics.uci.edu/ml/datasets/Iris)
+    X = orig_X[orig_y != 0]
+    y = orig_y[orig_y != 0]
+    y -= 1
 
     return _get_train_test_split(X, y)
 
@@ -61,7 +69,7 @@ def get_20newsgroup_train_test(feature_selection=False):
     if feature_selection:
         print("X's old shape = {0}".format(X.shape))
         feature_selector = LinearSVC(C=1., penalty="l1", dual=False)
-            # SelectKBest(chi2, k=100)
+        # feature_selector = SelectKBest(chi2, k=100)
         print("Doing feature selection using {0} ...".format(feature_selector))
         X_new = feature_selector.fit_transform(X, y)
         X = X_new

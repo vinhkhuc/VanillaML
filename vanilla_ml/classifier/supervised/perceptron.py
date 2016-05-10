@@ -17,13 +17,13 @@ class Perceptron(AbstractClassifier):
         self._classes = None
         self.w = None
 
-    # TODO: Check if y in {0, 1}
     def fit(self, X, y, sample_weights=None):
         assert sample_weights is None, "Sample weights are not supported!"
         assert len(X) == len(y), "Length mismatches: len(X) = %d, len(y) = %d" % (len(X), len(y))
-        assert np.all(y >= 0), "y must be non-negative"
 
         y = y.astype(int)
+        assert np.all(y >= 0) and np.all(y <= 1), "y must contain either 0 or 1."
+
         self._classes = np.unique(y)
         sign_y = sign_prediction(y)
 
