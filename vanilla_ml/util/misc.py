@@ -12,27 +12,27 @@ def sign(x):
     return 1 if x >= 0 else -1
 
 
-def get_penalty(X, factor, type):
+def get_penalty(w, factor, penalty):
     """ Get penalty for the input ndarray.
 
     Args:
-        X (ndarray): input data, shape N x 1
+        w (ndarray): input data, shape N x 1
         factor (float): penalty factor
-        type (str): penalty type
+        penalty (str): penalty type
 
     Returns:
         ndarray: penalty values
 
     """
-    assert X.ndim == 1, "The input array must be one-dimensional."
+    assert w.ndim == 1, "The input array must be one-dimensional."
     assert factor > 0, "The penalty factor must be positive."
 
-    if type == 'l1':
+    if penalty == 'l1':
         raise Exception("L1 penalty is not supported yet!")
-    elif type == 'l2':
-        return 2 * factor * X
+    elif penalty == 'l2':
+        return 2 * factor * w
     else:
-        raise Exception("The penalty '%s' is not supported!" % type)
+        raise Exception("The penalty '%s' is not supported!" % penalty)
 
 
 def sign_prediction(y):

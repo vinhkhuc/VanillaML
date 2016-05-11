@@ -6,22 +6,29 @@ from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassif
 from vanilla_ml.util import misc
 
 
-# FIXME: All predicted labels are zeros !!!
+# FIXME: L2 regularization doesn't work
 class LogisticRegression(AbstractClassifier):
     """
     Logistic regression trained using SGD.
-    Based on the gradient formula 8.5 in Kevin Murphy's book
+    Based on the gradient formula 8.5 in Kevin Murphy's book.
     """
     ALLOWED_PENALTIES = {'l1', 'l2'}
 
-    def __init__(self, learning_rate=1.0, penalty_type=None, penalty_factor=1.0, max_iterations=50):
+    def __init__(self, learning_rate=1.0, penalty_type=None, penalty_factor=1.0,
+                 mini_batch_size=10, max_iterations=50, random_state=42):
+
         assert learning_rate > 0, "Learning rate must be positive."
-        assert penalty_type is None or penalty_factor > 0, "Penalty factor must be positive."
+        if penalty_type is not None:
+            assert penalty_type in LogisticRegression.ALLOWED_PENALTIES, \
+                "Penalty '%s' is not supported!" % penalty_type
+            assert penalty_factor > 0, "Penalty factor must be positive."
 
         self.lr = learning_rate
         self.penalty_type = penalty_type
         self.penalty_factor = penalty_factor
+        self.mini_batch_size = mini_batch_size
         self.max_iterations = max_iterations
+        self.random_state = random_state
         self._classes = None
         self.w = None
 
@@ -37,17 +44,24 @@ class LogisticRegression(AbstractClassifier):
         n_samples, n_features = X.shape
         self.w = np.zeros(n_features)
 
-        # Gradient descent
-        # TODO: Use SGD
+        np.random.seed(self.random_state)
+        indices = np.arange(n_samples)
+
+        # Stochastic Gradient descent
         for it in range(self.max_iterations):
+            if (it + 1) % 10 == 0:
+                print("Iteration %d ..." % (it + 1))
+
             # Check for convergence
             pred_y = self.predict(X)
             if (pred_y == y).all():
                 break
 
             # Update w
-            grad = self._grad(X, y)
-            self.w -= self.lr * grad
+            mini_batch = np.random.choice(indices, size=self.mini_batch_size, replace=False)
+            X_batch, y_batch = X[mini_batch], y[mini_batch]
+            grad = self._grad(X_batch, y_batch)
+            self.w -= (1. / self.mini_batch_size) * self.lr * grad
 
             if it == self.max_iterations - 1:
                 print("Maximum iterations has reached.")
