@@ -38,7 +38,7 @@ class GradientBoostedRegressor(AbstractRegressor):
 
         """
         # TODO: For tree regressor, support the parameter maximum splits 'd' (as shown in the Algorithm 8.2).
-        r = y  # residuals
+        r = np.copy(y)  # residuals
         for i in range(self.num_rounds):
             base_regr = self.regrs[i]
             base_regr.fit(X, r)

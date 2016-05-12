@@ -6,6 +6,7 @@ from vanilla_ml.regression.decision_tree_regressor import DecisionTreeRegressor
 from vanilla_ml.regression.gradient_boosted_regressor import GradientBoostedRegressor
 from vanilla_ml.util import data_io
 
+
 class TestGradientBoostedRegressor(unittest.TestCase):
 
     def test_boston(self):

@@ -108,6 +108,12 @@ def get_clustering_data(n_samples=750, centers=None, cluster_std=0.4, random_sta
     return X, y
 
 
+def get_regression_curve():
+    X = np.arange(0, 10, 0.1)
+    y = X * np.sin(X)
+    return _get_train_test_split(X, y)
+
+
 def get_accuracy(model, train_test):
     tr_X, te_X, tr_y, te_y = train_test
 
