@@ -7,6 +7,9 @@ from vanilla_ml.util import misc
 from vanilla_ml.util.misc import sign_prediction, unsign_prediction
 
 
+# FIXME: Accuracy is lower than sklearn. Also, predicted labels are not changed since iteration 1 !!!
+# TODO: Check if pred_y doesn't change to stop the iterations
+# TODO: Give warning if X is detected as non-scaled
 class LinearSVM(AbstractClassifier):
     """
     Linear SVM trained using SGD
@@ -33,9 +36,6 @@ class LinearSVM(AbstractClassifier):
         self._classes = None
         self.w = None
 
-    # TODO: Fit bias!!!
-    # TODO: Check if pred_y doesn't change to stop the iterations
-    # TODO: Give warning if X is detected as non-scaled
     def fit(self, X, y, sample_weights=None):
         assert sample_weights is None, "Sample weights are not supported!"
         assert len(X) == len(y), "Length mismatches: len(X) = %d, len(y) = %d" % (len(X), len(y))

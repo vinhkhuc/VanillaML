@@ -5,7 +5,7 @@ import numpy as np
 from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
 from vanilla_ml.util import misc
 
-
+# TODO: Give warning if X is detected as non-scaled
 class LogisticRegression(AbstractClassifier):
     """
     Logistic regression trained using SGD.
@@ -32,7 +32,6 @@ class LogisticRegression(AbstractClassifier):
         self._classes = None
         self.w = None
 
-    # TODO: Give warning if X is detected as non-scaled
     def fit(self, X, y, sample_weights=None):
         assert sample_weights is None, "Sample weights are not supported!"
         assert len(X) == len(y), "Length mismatches: len(X) = %d, len(y) = %d" % (len(X), len(y))
