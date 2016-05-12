@@ -30,6 +30,7 @@ def get_iris_train_test():
     return _get_train_test_split(iris.data, iris.target)
 
 
+# Two linearly separated classes
 def get_setosa_vericolour_iris_train_test():
     iris = datasets.load_iris()
     orig_X, orig_y = iris.data, iris.target
@@ -41,6 +42,7 @@ def get_setosa_vericolour_iris_train_test():
     return _get_train_test_split(X, y)
 
 
+# Two linearly non-separated classes
 def get_vericolour_virginica_iris_train_test():
     iris = datasets.load_iris()
     orig_X, orig_y = iris.data, iris.target

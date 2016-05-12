@@ -6,7 +6,6 @@ from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassif
 from vanilla_ml.util import misc
 
 
-# FIXME: L2 regularization doesn't work
 class LogisticRegression(AbstractClassifier):
     """
     Logistic regression trained using SGD.
@@ -18,6 +17,7 @@ class LogisticRegression(AbstractClassifier):
                  mini_batch_size=10, max_iterations=50, random_state=42):
 
         assert learning_rate > 0, "Learning rate must be positive."
+
         if penalty_type is not None:
             assert penalty_type in LogisticRegression.ALLOWED_PENALTIES, \
                 "Penalty '%s' is not supported!" % penalty_type

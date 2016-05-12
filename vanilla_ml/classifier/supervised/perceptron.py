@@ -7,12 +7,15 @@ from vanilla_ml.util import misc
 from vanilla_ml.util.misc import sign_prediction, unsign_prediction
 
 
+# TODO: Fit bias
+# TODO: Check if pred_y doesn't change to stop the iterations
 # TODO: Add AveragedPerceptron
 class Perceptron(AbstractClassifier):
     """
     Classic perceptron (see the Algorithm 8.4 in Kevin Murphy's book).
     """
-    def __init__(self, max_iterations=50):
+    def __init__(self, fit_bias=True, max_iterations=50):
+        self.fit_bias = fit_bias
         self.max_iterations = max_iterations
         self._classes = None
         self.w = None
@@ -23,6 +26,9 @@ class Perceptron(AbstractClassifier):
 
         y = y.astype(int)
         assert np.all(y >= 0) and np.all(y <= 1), "y must contain either 0 or 1."
+
+        if self.fit_bias:
+            X = np.hstack((X, np.ones((X.shape[0], 1))))
 
         self._classes = np.unique(y)
         sign_y = sign_prediction(y)
@@ -49,5 +55,7 @@ class Perceptron(AbstractClassifier):
         raise Exception("Perception doesn't support probability prediction.")
 
     def predict(self, X):
+        if self.fit_bias:
+            X = np.hstack((X, np.ones((X.shape[0], 1))))
         pred_sign_y = np.sign(np.dot(X, self.w))
         return unsign_prediction(pred_sign_y)
