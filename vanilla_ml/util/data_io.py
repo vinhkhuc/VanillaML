@@ -108,9 +108,21 @@ def get_clustering_data(n_samples=750, centers=None, cluster_std=0.4, random_sta
     return X, y
 
 
-def get_regression_curve():
+def get_regression_line(noise=True):
+    X = np.arange(0, 10, 0.1)
+    y = 2 * X + 1
+    X = X[:, None]
+    if noise:
+        y += np.random.normal(0, 1, size=len(X))
+    return _get_train_test_split(X, y)
+
+
+def get_regression_curve(noise=True):
     X = np.arange(0, 10, 0.1)
     y = X * np.sin(X)
+    X = X[:, None]
+    if noise:
+        y += np.random.normal(0, 1, size=len(X))
     return _get_train_test_split(X, y)
 
 

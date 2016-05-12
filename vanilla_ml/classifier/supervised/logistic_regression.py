@@ -5,6 +5,7 @@ import numpy as np
 from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
 from vanilla_ml.util import misc
 
+
 # TODO: Give warning if X is detected as non-scaled
 class LogisticRegression(AbstractClassifier):
     """
