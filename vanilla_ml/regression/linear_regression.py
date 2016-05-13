@@ -14,12 +14,12 @@ class LinearRegressor(AbstractRegressor):
         + TODO: L1
     """
     ALLOWED_PENALTIES = {'l1', 'l2'}
-    SOLVERS = {'analytical', 'sgd'}
+    ALLOWED_SOLVERS = {'analytical', 'sgd'}
 
     def __init__(self, solver='analytical', fit_bias=True, learning_rate=1.0, penalty_type=None,
                  penalty_factor=1.0, mini_batch_size=10, max_iterations=50, random_state=42):
 
-        assert solver in LinearRegressor.SOLVERS, "The solver '%s' is invalid." % solver
+        assert solver in LinearRegressor.ALLOWED_SOLVERS, "The solver '%s' is invalid." % solver
 
         assert learning_rate > 0, "Learning rate must be positive."
 
@@ -55,7 +55,10 @@ class LinearRegressor(AbstractRegressor):
     # Analytical solver
     def _solve_analytical(self, X, y, sample_weights):
         assert sample_weights is None, "Sample weights are not supported!"
-        self.w = np.dot(np.dot(np.linalg.inv(np.dot(X.T, X)), X.T), y)
+        if self.penalty_type is None:
+            self.w = np.dot(np.dot(np.linalg.inv(np.dot(X.T, X)), X.T), y)
+        else:
+            raise Exception("Regularization is not supported yet.")
 
     # SGD solver
     def _solve_sgd(self, X, y, sample_weights=None):
