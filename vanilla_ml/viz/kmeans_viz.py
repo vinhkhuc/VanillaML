@@ -20,7 +20,7 @@ def viz():
 
     # Visualize KMeans
     fig, ax = plt.subplots(1, 1, sharex=True, sharey=True, figsize=[10, 10], facecolor='w')
-    ani = animation.FuncAnimation(fig, run_kmeans, range(8), fargs=(X, n_clusters, ax),
+    ani = animation.FuncAnimation(fig, run_kmeans, range(10), fargs=(X, n_clusters, ax),
                                   blit=False, interval=2000, repeat=True)
     plt.show()
     # ani.save('KMeans.gif', writer='imagemagick')
@@ -30,14 +30,16 @@ def run_kmeans(i, X, n_clusters, ax):
     np.random.seed(42)
     n_samples, n_features = X.shape
 
-    cluster_centroids = np.zeros((n_clusters, n_features), dtype=float)
+    assert n_features == 2, "Number of features must be 2 for visualization ..."
+
+    cluster_centroids = np.random.rand(n_clusters, n_features)
     cluster_sizes = np.empty(n_clusters)
 
     # Assign each sample to a random cluster
     y = np.random.randint(0, n_clusters, size=n_samples)
 
     if i == 0:
-        draw_plot(X, y, i, ax)
+        draw_plot(X, y, i, cluster_centroids, ax)
 
     for it in range(i):
         # Calculate cluster centroids
@@ -58,19 +60,23 @@ def run_kmeans(i, X, n_clusters, ax):
         # Otherwise continue
         y = next_y
 
-    draw_plot(X, y, i, ax)
+    draw_plot(X, y, i, cluster_centroids, ax)
 
 
-def draw_plot(X, y, it, ax):
-    unique_labels = set(y)
+def draw_plot(X, y, it, centroids, ax):
+    unique_labels = np.unique(y)
     colors = plt.cm.Spectral(np.linspace(0, 1, len(unique_labels)))
+
+    ax.cla()
     for k, col in zip(unique_labels, colors):
         if k == -1:
             col = 'k'  # black color is used for noise
         class_member_mask = y == k
         xy = X[class_member_mask]
-        ax.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=col,
-                markeredgecolor='k', markersize=10)
+        ax.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=col, markeredgecolor='k', markersize=10)
+        ax.plot(centroids[k, 0], centroids[k, 1], 's', markerfacecolor=col,
+                markeredgecolor='r', markeredgewidth=2, markersize=20)
+
     ax.set_title('Iteration %d' % (it + 1))
 
 if __name__ == "__main__":
