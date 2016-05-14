@@ -21,7 +21,7 @@ class TestLogisticRegression(unittest.TestCase):
         train_X = scaler.fit_transform(train_X)
         test_X = scaler.transform(test_X)
 
-        clf = LogisticRegression(max_iterations=100, penalty_type='l2', penalty_factor=0.1)
+        clf = LogisticRegression(fit_bias=False, max_iterations=100, penalty_type='l2', penalty_factor=0.1)
         # clf = skLogisticRegression(penalty='l2')
         print("clf: %s" % clf)
 

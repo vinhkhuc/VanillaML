@@ -14,7 +14,7 @@ class LogisticRegression(AbstractClassifier):
     """
     ALLOWED_PENALTIES = {'l1', 'l2'}
 
-    def __init__(self, learning_rate=1.0, penalty_type=None, penalty_factor=1.0,
+    def __init__(self, fit_bias=True, learning_rate=1.0, penalty_type=None, penalty_factor=1.0,
                  mini_batch_size=10, max_iterations=50, random_state=42):
 
         assert learning_rate > 0, "Learning rate must be positive."
@@ -24,6 +24,7 @@ class LogisticRegression(AbstractClassifier):
                 "Penalty '%s' is not supported!" % penalty_type
             assert penalty_factor > 0, "Penalty factor must be positive."
 
+        self.fit_bias = fit_bias
         self.lr = learning_rate
         self.penalty_type = penalty_type
         self.penalty_factor = penalty_factor
@@ -40,6 +41,9 @@ class LogisticRegression(AbstractClassifier):
         y = y.astype(int)
         assert np.all(y >= 0) and np.all(y <= 1), "y must contain either 0 or 1."
 
+        if self.fit_bias:
+            X = np.hstack((X, np.ones((X.shape[0], 1))))
+
         self._classes = np.unique(y)
         n_samples, n_features = X.shape
         self.w = np.zeros(n_features)
@@ -53,7 +57,7 @@ class LogisticRegression(AbstractClassifier):
                 print("Iteration %d ..." % (it + 1))
 
             # Check for convergence
-            pred_y = self.predict(X)
+            pred_y = _get_pred(X, self.w)
             if (pred_y == y).all():
                 break
 
@@ -67,7 +71,7 @@ class LogisticRegression(AbstractClassifier):
                 print("Maximum iterations has reached.")
 
     def _grad(self, X, y):
-        pred_proba_y = self.predict_proba(X)
+        pred_proba_y = misc.sigmoid(np.dot(X, self.w))
         grad = np.dot(pred_proba_y - y, X)
         if self.penalty_type is not None:
             grad += misc.get_penalty(self.w, self.penalty_factor, self.penalty_type)
@@ -75,10 +79,22 @@ class LogisticRegression(AbstractClassifier):
         return grad
 
     def predict_proba(self, X):
-        return misc.sigmoid(np.dot(X, self.w))
+        if self.fit_bias:
+            X = np.hstack((X, np.ones((X.shape[0], 1))))
+        return _get_pred_proba(X, self.w)
 
     def predict(self, X):
-        y_pred_proba = self.predict_proba(X)
-        y_pred = np.zeros_like(y_pred_proba, dtype=np.int)
-        y_pred[y_pred_proba > 0.5] = 1
-        return y_pred
+        if self.fit_bias:
+            X = np.hstack((X, np.ones((X.shape[0], 1))))
+        return _get_pred(X, self.w)
+
+
+def _get_pred_proba(X, w):
+    return misc.sigmoid(np.dot(X, w))
+
+
+def _get_pred(X, w):
+    pred_proba_y = _get_pred_proba(X, w)
+    pred_y = np.zeros_like(pred_proba_y, dtype=np.int)
+    pred_y[pred_proba_y > 0.5] = 1
+    return pred_y
