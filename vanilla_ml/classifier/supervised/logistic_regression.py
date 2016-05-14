@@ -15,7 +15,7 @@ class LogisticRegression(AbstractClassifier):
     ALLOWED_PENALTIES = {'l1', 'l2'}
 
     def __init__(self, fit_bias=True, learning_rate=1.0, penalty_type=None, penalty_factor=1.0,
-                 mini_batch_size=10, max_iterations=50, random_state=42):
+                 mini_batch_size=10, max_iterations=50, tol=1e-5, verbose=True, random_state=42):
 
         assert learning_rate > 0, "Learning rate must be positive."
 
@@ -30,6 +30,8 @@ class LogisticRegression(AbstractClassifier):
         self.penalty_factor = penalty_factor
         self.mini_batch_size = mini_batch_size
         self.max_iterations = max_iterations
+        self.tol = tol
+        self.verbose = verbose
         self.random_state = random_state
         self._classes = None
         self.w = None
@@ -38,20 +40,21 @@ class LogisticRegression(AbstractClassifier):
         assert sample_weights is None, "Sample weights are not supported!"
         assert len(X) == len(y), "Length mismatches: len(X) = %d, len(y) = %d" % (len(X), len(y))
 
-        y = y.astype(int)
-        assert np.all(y >= 0) and np.all(y <= 1), "y must contain either 0 or 1."
+        np.random.seed(self.random_state)
 
         if self.fit_bias:
             X = np.hstack((X, np.ones((X.shape[0], 1))))
+
+        y = y.astype(int)
+        assert np.all(y >= 0) and np.all(y <= 1), "y must contain either 0 or 1."
 
         self._classes = np.unique(y)
         n_samples, n_features = X.shape
         self.w = np.zeros(n_features)
 
-        np.random.seed(self.random_state)
+        # SGD
         indices = np.arange(n_samples)
-
-        # Stochastic Gradient descent
+        prev_w = np.copy(self.w)
         for it in range(self.max_iterations):
             if (it + 1) % 10 == 0:
                 print("Iteration %d ..." % (it + 1))
@@ -67,8 +70,16 @@ class LogisticRegression(AbstractClassifier):
             grad = self._grad(X_batch, y_batch)
             self.w -= (1. / self.mini_batch_size) * self.lr * grad
 
+            # Check for convergence
+            if misc.array_equals(self.w, prev_w, self.tol):
+                if self.verbose:
+                    print("Converged.")
+                break
+
             if it == self.max_iterations - 1:
                 print("Maximum iterations has reached.")
+
+            prev_w = np.copy(self.w)
 
     def _grad(self, X, y):
         pred_proba_y = misc.sigmoid(np.dot(X, self.w))

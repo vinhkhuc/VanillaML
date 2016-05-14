@@ -7,8 +7,7 @@ from vanilla_ml.util import misc
 from vanilla_ml.util.misc import sign_prediction, unsign_prediction
 
 
-# TODO: Fit bias
-# TODO: Check if pred_y doesn't change to stop the iterations
+# TODO: Check convergence (check maxent.py)
 # TODO: Add AveragedPerceptron
 class Perceptron(AbstractClassifier):
     """

@@ -15,7 +15,7 @@ class MaxEnt(AbstractClassifier):
     ALLOWED_PENALTIES = {'l1', 'l2'}
 
     def __init__(self, fit_bias=True, learning_rate=1.0, penalty_type=None, penalty_factor=1.0,
-                 mini_batch_size=10, max_iterations=50, tol=1e-3, verbose=True, random_state=42):
+                 mini_batch_size=10, max_iterations=50, tol=1e-5, verbose=True, random_state=42):
 
         assert learning_rate > 0, "Learning rate must be positive."
 
@@ -62,15 +62,6 @@ class MaxEnt(AbstractClassifier):
         for it in range(self.max_iterations):
             if self.verbose and (it + 1) % 10 == 0:
                 print("Iteration %d ..." % (it + 1))
-
-            # pred_y = _get_pred(X, self.w)
-            # print("\n* Iteration %d" % (it + 1))
-            # print("\ty = \n%s" % y)
-            # print("\tpred_y = \n%s" % pred_y)
-            # print("\tpredict_proba_y = \n%s" % _get_pred_proba(X, self.w))
-            # print("Training accuracy = %g" % accuracy_score(y, pred_y))
-            # if (pred_y == y).all():
-            #     break
 
             # Update w
             mini_batch = np.random.choice(

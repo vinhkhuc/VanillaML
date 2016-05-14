@@ -17,7 +17,7 @@ class LinearSVM(AbstractClassifier):
     ALLOWED_PENALTIES = {'l1', 'l2'}
 
     def __init__(self, learning_rate=1.0, fit_bias=True, penalty_type=None, penalty_factor=1.0,
-                 mini_batch_size=10, max_iterations=50, random_state=42):
+                 mini_batch_size=10, max_iterations=50, tol=1e-5, verbose=True, random_state=42):
 
         assert learning_rate > 0, "Learning rate must be positive."
 
@@ -32,6 +32,8 @@ class LinearSVM(AbstractClassifier):
         self.penalty_factor = penalty_factor
         self.mini_batch_size = mini_batch_size
         self.max_iterations = max_iterations
+        self.tol = tol
+        self.verbose = verbose
         self.random_state = random_state
         self._classes = None
         self.w = None
@@ -39,6 +41,8 @@ class LinearSVM(AbstractClassifier):
     def fit(self, X, y, sample_weights=None):
         assert sample_weights is None, "Sample weights are not supported!"
         assert len(X) == len(y), "Length mismatches: len(X) = %d, len(y) = %d" % (len(X), len(y))
+
+        np.random.seed(self.random_state)
 
         y = y.astype(int)
         assert np.all(y >= 0) and np.all(y <= 1), "y must contain either 0 or 1."
@@ -51,21 +55,12 @@ class LinearSVM(AbstractClassifier):
         sign_y = sign_prediction(y)
         self._classes = np.unique(sign_y)
 
-        np.random.seed(self.random_state)
+        # SGD
         indices = np.arange(n_samples)
-
-        # Stochastic Gradient descent
+        prev_w = np.copy(self.w)
         for it in range(self.max_iterations):
-            if (it + 1) % 10 == 0:
+            if self.verbose and (it + 1) % 10 == 0:
                 print("Iteration %d ..." % (it + 1))
-
-            # Check for convergence
-            sign_pred_y = np.sign(np.dot(X, self.w))
-            if (sign_pred_y == sign_y).all():
-                break
-
-            if (it + 1) % 10 == 0:
-                print("sign_pred_y = %s" % sign_pred_y)
 
             # Update w
             mini_batch = np.random.choice(indices, size=self.mini_batch_size, replace=False)
@@ -73,11 +68,19 @@ class LinearSVM(AbstractClassifier):
             grad = self._grad(X_batch, sign_y_batch)
             self.w -= (1. / self.mini_batch_size) * self.lr * grad
 
-            if it == self.max_iterations - 1:
+            # Check for convergence
+            if misc.array_equals(self.w, prev_w, self.tol):
+                if self.verbose:
+                    print("Converged.")
+                break
+
+            if self.verbose and it == self.max_iterations - 1:
                 print("Maximum iterations has reached.")
 
+            prev_w = np.copy(self.w)
+
     def _grad(self, X, sign_y):
-        # Subgradient of hinge-loss
+        # Sub-gradient of hinge-loss
         # L = max(0, 1 - w * yX) = 1 - w * yX if w * yX <= 1 else 0
         # grad = -yX if w * yX <= 1 else 0
         yX = np.dot(X.T, sign_y)
