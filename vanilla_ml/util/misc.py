@@ -91,3 +91,8 @@ def log_sum_exp(X):
     """
     max_X = X.max(axis=1)
     return max_X + np.log(np.sum(np.exp(X - max_X[:, None]), axis=1))
+
+
+def array_equals(a, b, tol):
+    diff = np.sqrt(np.sum(np.square(a - b)))
+    return diff <= tol

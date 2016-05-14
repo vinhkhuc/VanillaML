@@ -20,7 +20,8 @@ class TestMaxEnt(unittest.TestCase):
         train_X = scaler.fit_transform(train_X)
         test_X = scaler.transform(test_X)
 
-        clf = MaxEnt(max_iterations=100, penalty_type='l2', penalty_factor=1e3)
+        clf = MaxEnt(fit_bias=True, max_iterations=100, mini_batch_size=100,
+                     penalty_type='l2', penalty_factor=1.0)
         # clf = skLogisticRegression(penalty='l2')
         print("clf: %s" % clf)
 
@@ -29,15 +30,15 @@ class TestMaxEnt(unittest.TestCase):
 
         print("Predicting ...")
         pred_y = clf.predict(test_X)
-        pred_proba_y = clf.predict_proba(test_X)
+        # pred_proba_y = clf.predict_proba(test_X)
         print("y = %s" % test_y)
-        print("pred_y = %s" % pred_y)
-        print("pred_proba_y = %s" % pred_proba_y)
+        print("pred_y = \n%s" % pred_y)
+        # print("pred_proba_y = \n%s" % pred_proba_y)
 
         accuracy = accuracy_score(test_y, pred_y)
         print("Accuracy = %g%%" % (100 * accuracy))
 
-        # self.assertGreaterEqual(accuracy, 0.85)
+        self.assertGreaterEqual(accuracy, 0.94)
 
 if __name__ == '__main__':
     unittest.main()
