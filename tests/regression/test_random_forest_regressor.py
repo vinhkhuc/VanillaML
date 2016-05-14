@@ -5,6 +5,7 @@ import numpy as np
 from vanilla_ml.regression.random_forest_regressor import RandomForestRegressor
 from vanilla_ml.util import data_io
 
+
 class TestRandomForestRegressor(unittest.TestCase):
 
     def test_boston(self):
