@@ -7,7 +7,7 @@ from sklearn.tree.tree import DecisionTreeClassifier as skDecisionTreeClassifier
 from vanilla_ml.util import data_io
 from vanilla_ml.classifier.supervised.adaboost_classifier import AdaBoostClassifier
 from vanilla_ml.classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
-from vanilla_ml.classifier.supervised.naive_bayes_classifier import NaiveBayesClassifier
+from vanilla_ml.classifier.supervised.naive_bayes import NaiveBayesClassifier
 
 
 def test_sklearn():

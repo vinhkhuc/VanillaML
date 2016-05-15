@@ -8,7 +8,6 @@ from vanilla_ml.util.misc import sign_prediction, unsign_prediction
 
 
 # FIXME: Accuracy is lower than sklearn. Also, predicted labels are not changed since iteration 1 !!!
-# TODO: Check if pred_y doesn't change to stop the iterations
 # TODO: Give warning if X is detected as non-scaled
 class LinearSVM(AbstractClassifier):
     """
