@@ -3,8 +3,9 @@ Multi-layer Perceptron (Feed-forward Neural Network)
 """
 import numpy as np
 
+from vanilla_ml.base.neural_network.activators import Sigmoid
 from vanilla_ml.base.neural_network.containers import Sequential
-from vanilla_ml.base.neural_network.layers import FeedForward
+from vanilla_ml.base.neural_network.layers import Linear
 from vanilla_ml.base.neural_network.loss import CrossEntropyLoss
 from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
 
@@ -47,7 +48,7 @@ class MLPClassifier(AbstractClassifier):
         # one_hot_y = misc.one_hot(y, n_classes)
 
         # Model
-        self.model = _build_model(self.layers, n_classes)
+        self.model = _build_model(n_features, self.layers, n_classes)
 
         # Cost
         loss = CrossEntropyLoss()
@@ -60,10 +61,7 @@ class MLPClassifier(AbstractClassifier):
         total_num  = 0
 
         # SGD params
-        params = {
-            "lrate": self.lr,
-            "max_grad_norm": 40
-        }
+        params = {"lrate": self.lr, "max_grad_norm": 40}
 
         # Run SGD
         indices = np.arange(n_samples)
@@ -83,20 +81,26 @@ class MLPClassifier(AbstractClassifier):
             print("%d | train error: %g" % (total_num + 1, total_err / total_num))
 
             # Backward propagation
-            grad = loss.bprop(out, target_data)
-            self.model.bprop(input_data, grad)
+            grad_output = loss.bprop(out, target_data)
+            self.model.bprop(input_data, grad_output)
             self.model.update(params)
 
     def predict_proba(self, X):
         return self.model.fprop(X)
 
 
-def _build_model(layers, n_classes):
+def _build_model(input_size, layer_sizes, output_size):
 
     model = Sequential()
-    for layer in layers:
-        model.add(FeedForward(layer[0], layer[1]))
-    model.add(FeedForward(layers[-1][1], n_classes))
+    for i in range(len(layer_sizes)):
+        if i == 0:
+            model.add(Linear(input_size, layer_sizes[i]))
+        else:
+            model.add(Linear(layer_sizes[i - 1], layer_sizes[i]))
+        model.add(Sigmoid())
+
+    model.add(Linear(layer_sizes[-1], output_size))
+
     model.modules[-1].skip_bprop = True
 
     return model

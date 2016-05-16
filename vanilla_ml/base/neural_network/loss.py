@@ -32,6 +32,8 @@ class CrossEntropyLoss(Loss):
         self.size_average = True
 
     def fprop(self, input_data, target_data):
+        # tmp = [(t, i) for i, t in enumerate(target_data)]
+        # z = zip(*tmp)  # unzipping trick !
         z = target_data
         cost = np.sum(-np.log(input_data[z]))
         if self.size_average:
