@@ -18,11 +18,20 @@ class Loss(object):
 
 class MSELoss(Loss):
 
+    def __init__(self):
+        self.size_average = True
+
     def fprop(self, input_data, target_data):
-        return rmse_score(target_data, input_data)
+        cost = np.sum(np.square(target_data - input_data))
+        if self.size_average:
+            cost /= target_data.shape[0]
+        return cost
 
     def bprop(self, input_data, target_data):
-        return 2 * (input_data - target_data) / len(input_data)
+        grad_input = 2 * (input_data - target_data)
+        if self.size_average:
+            grad_input /= target_data.shape[0]
+        return grad_input
 
 
 class CrossEntropyLoss(Loss):
@@ -37,7 +46,7 @@ class CrossEntropyLoss(Loss):
         z = target_data
         cost = np.sum(-np.log(input_data[z]))
         if self.size_average:
-            cost /= input_data.shape[1]
+            cost /= input_data.shape[1]  # FIXME: It should be input_data.shape[0]!!!
 
         return cost
 
@@ -53,7 +62,3 @@ class CrossEntropyLoss(Loss):
             grad_input /= input_data.shape[1]
 
         return grad_input
-
-    def get_error(self, input_data, target_data):
-        y = input_data.argmax(axis=0)
-        return np.sum(y != target_data)

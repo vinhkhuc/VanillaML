@@ -4,6 +4,7 @@ import numpy as np
 from vanilla_ml.regression.decision_tree_regressor import DecisionTreeRegressor
 from vanilla_ml.regression.linear_regression import LinearRegressor
 from vanilla_ml.util import data_io
+from vanilla_ml.util.metrics.rmse import rmse_score
 
 
 class TestLinearRegressor(unittest.TestCase):
@@ -23,7 +24,7 @@ class TestLinearRegressor(unittest.TestCase):
         pred_y = regr.predict(test_X)
         print("pred_y = %s" % regr.predict(test_X))
 
-        rmse = np.sqrt(np.mean(np.square(test_y - pred_y)))
+        rmse = rmse_score(test_y, pred_y)
         print("RMSE = %g" % rmse)
 
         # self.assertLessEqual(rmse, 6)

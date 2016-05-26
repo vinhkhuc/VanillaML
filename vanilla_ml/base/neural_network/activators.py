@@ -3,6 +3,24 @@ import numpy as np
 from module import Module
 
 
+class ReLU(Module):
+    """ ReLU module """
+
+    def fprop(self, input_data):
+        self.output = np.multiply(input_data, input_data > 0)
+        return self.output
+
+    def bprop(self, input_data, grad_output):
+        self.grad_input = np.multiply(grad_output, input_data > 0)
+        return self.grad_input
+
+    def update(self, params):
+        pass
+
+    def share(self, m):
+        pass
+
+
 class Sigmoid(Module):
 
     def fprop(self, input_data):
@@ -10,7 +28,8 @@ class Sigmoid(Module):
         return self.output
 
     def bprop(self, input_data, grad_output):
-        return grad_output * self.output * (1. - self.output)
+        return np.multiply(grad_output, np.multiply(self.output, 1. - self.output))
+        # return grad_output * self.output * (1. - self.output)
 
     def update(self, params):
         pass

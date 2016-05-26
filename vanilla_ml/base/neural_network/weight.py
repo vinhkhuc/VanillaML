@@ -10,7 +10,10 @@ class Weight(object):
         """
         self.sz = sz
         self.D = 0.1 * np.random.standard_normal(sz)
+        # self.D = np.ones(sz)   # TODO: Remove this
         self.grad = np.zeros(sz, np.float32)
+
+        # print("D = %s, grad = %s" % (self.D, self.grad))
 
     def update(self, params):
         """
@@ -20,11 +23,14 @@ class Weight(object):
         if max_grad_norm and max_grad_norm > 0:
             grad_norm = np.linalg.norm(self.grad, 2)
             if grad_norm > max_grad_norm:
+                print("Applying grad_norm ...")
                 self.grad = self.grad * max_grad_norm / grad_norm
 
-        self.D -= params['lrate'] * self.grad
+        # Regularization
+        # self.grad += 10 * 2 * self.D
 
-        print("grad_w = %s" % self.grad)
+        self.D -= params['lrate'] * self.grad
+        # print("D = %s, grad = %s" % (self.D, self.grad))
 
         self.grad[:] = 0
 

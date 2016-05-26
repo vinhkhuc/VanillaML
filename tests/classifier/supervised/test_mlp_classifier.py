@@ -21,8 +21,8 @@ class TestMLPClassifier(unittest.TestCase):
         train_X = scaler.fit_transform(train_X)
         test_X = scaler.transform(test_X)
 
-        layers = [5]  # hidden layer has 5 units
-        clf = MLPClassifier(layers, fit_bias=False, max_iterations=100, mini_batch_size=100)
+        layers = [2]  # hidden layer has 5 units
+        clf = MLPClassifier(layers, fit_bias=False, n_epochs=100, batch_size=100)
         print("clf: %s" % clf)
 
         print("Fitting ...")

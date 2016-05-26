@@ -3,28 +3,29 @@ Multi-layer Perceptron (Feed-forward Neural Network)
 """
 import numpy as np
 
-from vanilla_ml.base.neural_network.activators import Sigmoid
+from vanilla_ml.base.neural_network.activators import Sigmoid, Softmax, ReLU
 from vanilla_ml.base.neural_network.containers import Sequential
 from vanilla_ml.base.neural_network.layers import Linear
 from vanilla_ml.base.neural_network.loss import CrossEntropyLoss
 from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
+from vanilla_ml.util.metrics.accuracy import accuracy_score
 
 
 class MLPClassifier(AbstractClassifier):
 
     def __init__(self, layers, fit_bias=False, learning_rate=1.0,
-                 mini_batch_size=10, max_iterations=50, tol=1e-5, verbose=True, random_state=42):
+                 batch_size=10, n_epochs=50, tol=1e-5, verbose=True, random_state=42):
 
         assert learning_rate > 0, "Learning rate must be positive."
 
-        # TODO: Support fit_bias
+        # TODO: Remove fit_bias since it's already supported in layers.py
         assert not fit_bias, "fit_bias is not supported."
 
         self.layers = layers
         self.fit_bias = fit_bias
         self.lr = learning_rate
-        self.mini_batch_size = mini_batch_size
-        self.max_iterations = max_iterations
+        self.batch_size = batch_size
+        self.n_epochs = n_epochs
         self.tol = tol
         self.verbose = verbose
         self.random_state = random_state
@@ -48,42 +49,45 @@ class MLPClassifier(AbstractClassifier):
         # one_hot_y = misc.one_hot(y, n_classes)
 
         # Model
-        self.model = _build_model(n_features, self.layers, n_classes)
-
-        # Cost
-        loss = CrossEntropyLoss()
-        loss.size_average = False
-        loss.do_softmax_bprop = True
-
-        # For report
-        total_err  = 0.
-        total_cost = 0.
-        total_num  = 0
+        self.model, loss = _build_model(n_features, self.layers, n_classes)
 
         # SGD params
         params = {"lrate": self.lr, "max_grad_norm": 40}
 
-        # Run SGD
         indices = np.arange(n_samples)
-        for it in range(self.max_iterations):
-            if self.verbose and (it + 1) % 10 == 0:
-                print("Iteration %d ..." % (it + 1))
 
-            mini_batch = np.random.choice(indices, size=self.mini_batch_size, replace=False)
-            input_data, target_data = X[mini_batch], y[mini_batch]
+        # Run SGD
+        for epoch in range(self.n_epochs):
+            if self.verbose and (epoch + 1) % 10 == 0:
+                print("Epoch %d ..." % (epoch + 1))
 
-            # Forward propagation
-            out = self.model.fprop(input_data)
-            total_cost += loss.fprop(out, target_data)
-            total_err  += loss.get_error(out, target_data)
-            total_num  += self.mini_batch_size
+            # For report
+            total_err  = 0.
+            total_cost = 0.
+            total_num  = 0
 
-            print("%d | train error: %g" % (total_num + 1, total_err / total_num))
+            for it in range(n_samples / self.batch_size):
 
-            # Backward propagation
-            grad_output = loss.bprop(out, target_data)
-            self.model.bprop(input_data, grad_output)
-            self.model.update(params)
+                batch = np.random.choice(indices, size=self.batch_size, replace=False)
+                input_data, target_data = X[batch], y[batch]
+
+                # Forward propagation
+                out = self.model.fprop(input_data)
+                total_cost += loss.fprop(out, target_data)
+                pred = out.argmax(axis=1)
+                total_err  += accuracy_score(pred, target_data)
+                total_num  += self.batch_size
+
+                # Backward propagation
+                grad_output = loss.bprop(out, target_data)
+                self.model.bprop(input_data, grad_output)
+                self.model.update(params)
+
+            print("\n* Epoch %d" % (epoch + 1))
+            # print("%d | train error: %g" % (total_num + 1, total_err / total_num))
+            print("pred =\n%s" % pred)
+            print("target_data =\n%s" % target_data)
+            print("accuracy = %.2f%%" % (100. * accuracy_score(pred, target_data)))
 
     def predict_proba(self, X):
         return self.model.fprop(X)
@@ -98,9 +102,16 @@ def _build_model(input_size, layer_sizes, output_size):
         else:
             model.add(Linear(layer_sizes[i - 1], layer_sizes[i]))
         model.add(Sigmoid())
+        # model.add(ReLU())
 
     model.add(Linear(layer_sizes[-1], output_size))
-
+    model.add(Softmax())
     model.modules[-1].skip_bprop = True
 
-    return model
+    # Cost
+    loss = CrossEntropyLoss()
+    loss.size_average = False
+    loss.do_softmax_bprop = True
+
+    return model, loss
+
