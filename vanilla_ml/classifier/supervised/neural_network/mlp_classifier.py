@@ -68,26 +68,37 @@ class MLPClassifier(AbstractClassifier):
 
             for it in range(n_samples / self.batch_size):
 
-                batch = np.random.choice(indices, size=self.batch_size, replace=False)
+                # batch = np.random.choice(indices, size=self.batch_size, replace=False)
+                start = it * self.batch_size
+                end = min((it + 1) * self.batch_size, n_samples)
+                batch = indices[start:end]
                 input_data, target_data = X[batch], y[batch]
 
                 # Forward propagation
                 out = self.model.fprop(input_data)
                 total_cost += loss.fprop(out, target_data)
                 pred = out.argmax(axis=1)
-                total_err  += accuracy_score(pred, target_data)
-                total_num  += self.batch_size
+                total_err += accuracy_score(pred, target_data)
+                total_num += self.batch_size
+
+                print("\n* Iter %d" % (it + 1))
+                # print("input_data =\n%s" % input_data)
+                # print("pred =\n%s" % pred)
+                # print("pred_proba =\n%s" % out)
+                # print("target_data =\n%s" % target_data)
+                print("loss = %s" % loss.fprop(out, target_data))
+                print("Accuracy = %.2f%%" % (100. * accuracy_score(target_data, pred)))
 
                 # Backward propagation
                 grad_output = loss.bprop(out, target_data)
                 self.model.bprop(input_data, grad_output)
                 self.model.update(params)
 
-            print("\n* Epoch %d" % (epoch + 1))
-            # print("%d | train error: %g" % (total_num + 1, total_err / total_num))
-            print("pred =\n%s" % pred)
-            print("target_data =\n%s" % target_data)
-            print("accuracy = %.2f%%" % (100. * accuracy_score(pred, target_data)))
+            # print("\n* Epoch %d" % (epoch + 1))
+            # # print("%d | train error: %g" % (total_num + 1, total_err / total_num))
+            # print("pred =\n%s" % pred)
+            # print("target_data =\n%s" % target_data)
+            # print("accuracy = %.2f%%" % (100. * accuracy_score(pred, target_data)))
 
     def predict_proba(self, X):
         return self.model.fprop(X)
@@ -105,13 +116,9 @@ def _build_model(input_size, layer_sizes, output_size):
         # model.add(ReLU())
 
     model.add(Linear(layer_sizes[-1], output_size))
-    model.add(Softmax())
-    model.modules[-1].skip_bprop = True
+    model.add(Softmax(skip_bprop=True))
 
     # Cost
-    loss = CrossEntropyLoss()
-    loss.size_average = False
-    loss.do_softmax_bprop = True
+    loss = CrossEntropyLoss(size_average=True, do_softmax_bprop=True)
 
     return model, loss
-

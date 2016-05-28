@@ -36,29 +36,42 @@ class MSELoss(Loss):
 
 class CrossEntropyLoss(Loss):
 
-    def __init__(self):
-        # self.eps = 1e-7
-        self.size_average = True
+    def __init__(self, eps=1e-7, size_average=True, do_softmax_bprop=False):
+        self.eps = eps
+        self.size_average = size_average
+        self.do_softmax_bprop = do_softmax_bprop
 
     def fprop(self, input_data, target_data):
         # tmp = [(t, i) for i, t in enumerate(target_data)]
         # z = zip(*tmp)  # unzipping trick !
-        z = target_data
-        cost = np.sum(-np.log(input_data[z]))
+
+        tmp = [(i, t) for i, t in enumerate(target_data)]
+        z = zip(*tmp)  # unzipping trick !
+
+        # z = target_data
+        cost = -np.sum(np.log(input_data[z]))
         if self.size_average:
-            cost /= input_data.shape[1]  # FIXME: It should be input_data.shape[0]!!!
+            cost /= input_data.shape[0]
 
         return cost
 
     def bprop(self, input_data, target_data):
         # tmp = [(t, i) for i, t in enumerate(target_data)]
         # z = zip(*tmp)
-        z = target_data
 
-        grad_input = input_data
-        grad_input[z] -= 1
+        tmp = [(i, t) for i, t in enumerate(target_data)]
+        z = zip(*tmp)  # unzipping trick !
+
+        # z = target_data
+
+        if self.do_softmax_bprop:
+            grad_input = np.copy(input_data)
+            grad_input[z] -= 1
+        else:
+            grad_input = np.zeros_like(input_data, np.float32)
+            grad_input[z] = -1. / (input_data[z] + self.eps)
 
         if self.size_average:
-            grad_input /= input_data.shape[1]
+            grad_input /= input_data.shape[0]
 
         return grad_input

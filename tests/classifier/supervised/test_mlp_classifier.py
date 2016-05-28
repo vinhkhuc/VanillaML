@@ -1,9 +1,8 @@
 import unittest
 
-from sklearn.linear_model.logistic import LogisticRegression as skLogisticRegression
+import numpy as np
 from sklearn.preprocessing.data import StandardScaler
 
-from vanilla_ml.classifier.supervised.maxent import MaxEnt
 from vanilla_ml.classifier.supervised.neural_network.mlp_classifier import MLPClassifier
 from vanilla_ml.util import data_io
 from vanilla_ml.util.metrics.accuracy import accuracy_score
@@ -16,13 +15,19 @@ class TestMLPClassifier(unittest.TestCase):
         print("train_X's shape = %s, train_y's shape = %s" % (train_X.shape, train_y.shape))
         print("test_X's shape = %s, test_y's shape = %s" % (test_X.shape, test_y.shape))
 
-        print("Applying standard scaling ...")
-        scaler = StandardScaler()
-        train_X = scaler.fit_transform(train_X)
-        test_X = scaler.transform(test_X)
+        # print("Applying standard scaling ...")
+        # scaler = StandardScaler()
+        # train_X = scaler.fit_transform(train_X)
+        # test_X = scaler.transform(test_X)
 
-        layers = [2]  # hidden layer has 5 units
-        clf = MLPClassifier(layers, fit_bias=False, n_epochs=100, batch_size=100)
+        # train_X = test_X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+        # train_y = test_y = np.array([0, 1, 1, 0])
+
+        # train_X = test_X = np.array([[0], [1]])
+        # train_y = test_y = np.array([0, 1])
+
+        layers = [10]
+        clf = MLPClassifier(layers, batch_size=train_X.shape[0], n_epochs=100, learning_rate=0.1)
         print("clf: %s" % clf)
 
         print("Fitting ...")
@@ -30,9 +35,10 @@ class TestMLPClassifier(unittest.TestCase):
 
         print("Predicting ...")
         pred_y = clf.predict(test_X)
+        pred_proba_y = clf.predict_proba(test_X)
         print("y = %s" % test_y)
         print("pred_y = \n%s" % pred_y)
-        # print("pred_proba_y = \n%s" % pred_proba_y)
+        print("pred_proba_y = \n%s" % pred_proba_y)
 
         accuracy = accuracy_score(test_y, pred_y)
         print("Accuracy = %g%%" % (100 * accuracy))
