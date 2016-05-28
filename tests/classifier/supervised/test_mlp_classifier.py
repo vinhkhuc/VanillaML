@@ -15,10 +15,10 @@ class TestMLPClassifier(unittest.TestCase):
         print("train_X's shape = %s, train_y's shape = %s" % (train_X.shape, train_y.shape))
         print("test_X's shape = %s, test_y's shape = %s" % (test_X.shape, test_y.shape))
 
-        # print("Applying standard scaling ...")
-        # scaler = StandardScaler()
-        # train_X = scaler.fit_transform(train_X)
-        # test_X = scaler.transform(test_X)
+        print("Applying standard scaling ...")
+        scaler = StandardScaler()
+        train_X = scaler.fit_transform(train_X)
+        test_X = scaler.transform(test_X)
 
         # train_X = test_X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
         # train_y = test_y = np.array([0, 1, 1, 0])
@@ -35,10 +35,11 @@ class TestMLPClassifier(unittest.TestCase):
 
         print("Predicting ...")
         pred_y = clf.predict(test_X)
-        pred_proba_y = clf.predict_proba(test_X)
         print("y = %s" % test_y)
         print("pred_y = \n%s" % pred_y)
-        print("pred_proba_y = \n%s" % pred_proba_y)
+
+        # pred_proba_y = clf.predict_proba(test_X)
+        # print("pred_proba_y = \n%s" % pred_proba_y)
 
         accuracy = accuracy_score(test_y, pred_y)
         print("Accuracy = %g%%" % (100 * accuracy))
