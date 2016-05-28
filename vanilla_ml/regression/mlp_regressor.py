@@ -1,18 +1,19 @@
 """
-Multi-layer Perceptron (Feed-forward Neural Network)
+Multi-layer Perceptron (Feed-forward Neural Network) for regression
 """
 import numpy as np
 
-from vanilla_ml.base.neural_network.activators import Sigmoid, Softmax, ReLU
+from vanilla_ml.base.neural_network.activators import Sigmoid, ReLU
 from vanilla_ml.base.neural_network.containers import Sequential
 from vanilla_ml.base.neural_network.layers import Linear
-from vanilla_ml.base.neural_network.loss import CrossEntropyLoss
-from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
-from vanilla_ml.util.metrics.accuracy import accuracy_score
+from vanilla_ml.base.neural_network.loss import MSELoss
+from vanilla_ml.regression.abstract_regressor import AbstractRegressor
+from vanilla_ml.util.metrics.rmse import mse_score, rmse_score
 
 
-class MLPClassifier(AbstractClassifier):
+class MLPRegressor(AbstractRegressor):
 
+    # TODO: n_epochs, tol shouldn't be in the constructor
     def __init__(self, layers, fit_bias=False, learning_rate=1.0,
                  batch_size=10, n_epochs=50, tol=1e-5, verbose=True, random_state=42):
 
@@ -42,14 +43,10 @@ class MLPClassifier(AbstractClassifier):
         #     X = np.hstack((X, np.ones((X.shape[0], 1))))
 
         n_samples, n_features = X.shape
-        self._classes = np.unique(y)
-        n_classes = len(self._classes)
-
-        # # Convert y to one-hot matrix
-        # one_hot_y = misc.one_hot(y, n_classes)
+        y = y[:, None]  # Expand y to make it a 2-dimensional vector.
 
         # Model
-        self.model, loss = _build_model(n_features, self.layers, n_classes)
+        self.model, loss = _build_model(n_features, self.layers)
 
         # SGD params
         params = {"lrate": self.lr, "max_grad_norm": 40}
@@ -59,7 +56,7 @@ class MLPClassifier(AbstractClassifier):
         # Run SGD
         for epoch in range(self.n_epochs):
             if self.verbose and (epoch + 1) % 10 == 0:
-                print("Epoch %d ..." % (epoch + 1))
+                print("\n * Epoch %d ..." % (epoch + 1))
 
             # For report
             total_err  = 0.
@@ -75,36 +72,32 @@ class MLPClassifier(AbstractClassifier):
                 input_data, target_data = X[batch], y[batch]
 
                 # Forward propagation
-                out = self.model.fprop(input_data)
-                total_cost += loss.fprop(out, target_data)
-                pred = out.argmax(axis=1)
-                total_err += accuracy_score(pred, target_data)
-                total_num += self.batch_size
+                pred = self.model.fprop(input_data)
+                total_cost += loss.fprop(pred, target_data)
+                total_err  += mse_score(target_data, pred)
+                total_num  += self.batch_size
 
-                print("\n* Iter %d" % (it + 1))
+                # print("\n* Iter %d" % (it + 1))
                 # print("input_data =\n%s" % input_data)
                 # print("pred =\n%s" % pred)
-                # print("pred_proba =\n%s" % out)
                 # print("target_data =\n%s" % target_data)
-                print("loss = %s" % loss.fprop(out, target_data))
-                print("Accuracy = %.2f%%" % (100. * accuracy_score(target_data, pred)))
+                print("RMSE = %g" % rmse_score(target_data, pred))
 
                 # Backward propagation
-                grad_output = loss.bprop(out, target_data)
+                grad_output = loss.bprop(pred, target_data)
                 self.model.bprop(input_data, grad_output)
                 self.model.update(params)
 
             # print("\n* Epoch %d" % (epoch + 1))
-            # # print("%d | train error: %g" % (total_num + 1, total_err / total_num))
             # print("pred =\n%s" % pred)
             # print("target_data =\n%s" % target_data)
-            # print("accuracy = %.2f%%" % (100. * accuracy_score(pred, target_data)))
+            # print("RMSE = %g" % mse_score(target_data, pred))
 
-    def predict_proba(self, X):
-        return self.model.fprop(X)
+    def predict(self, X):
+        return self.model.fprop(X).squeeze()
 
 
-def _build_model(input_size, layer_sizes, output_size):
+def _build_model(input_size, layer_sizes):
 
     model = Sequential()
     for i in range(len(layer_sizes)):
@@ -115,10 +108,9 @@ def _build_model(input_size, layer_sizes, output_size):
         model.add(Sigmoid())
         # model.add(ReLU())
 
-    model.add(Linear(layer_sizes[-1], output_size))
-    model.add(Softmax(skip_bprop=True))
+    model.add(Linear(layer_sizes[-1], 1))
 
     # Cost
-    loss = CrossEntropyLoss(size_average=True, do_softmax_bprop=True)
+    loss = MSELoss()
 
     return model, loss

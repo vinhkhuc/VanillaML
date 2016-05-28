@@ -1,9 +1,8 @@
 import unittest
 
-from sklearn.linear_model.logistic import LogisticRegression as skLogisticRegression
+import numpy as np
 from sklearn.preprocessing.data import StandardScaler
 
-from vanilla_ml.classifier.supervised.maxent import MaxEnt
 from vanilla_ml.classifier.supervised.neural_network.mlp_classifier import MLPClassifier
 from vanilla_ml.util import data_io
 from vanilla_ml.util.metrics.accuracy import accuracy_score
@@ -21,8 +20,14 @@ class TestMLPClassifier(unittest.TestCase):
         train_X = scaler.fit_transform(train_X)
         test_X = scaler.transform(test_X)
 
-        layers = [5]  # hidden layer has 5 units
-        clf = MLPClassifier(layers, fit_bias=False, max_iterations=100, mini_batch_size=100)
+        # train_X = test_X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+        # train_y = test_y = np.array([0, 1, 1, 0])
+
+        # train_X = test_X = np.array([[0], [1]])
+        # train_y = test_y = np.array([0, 1])
+
+        layers = [10]
+        clf = MLPClassifier(layers, batch_size=train_X.shape[0], n_epochs=100, learning_rate=0.1)
         print("clf: %s" % clf)
 
         print("Fitting ...")
@@ -32,6 +37,8 @@ class TestMLPClassifier(unittest.TestCase):
         pred_y = clf.predict(test_X)
         print("y = %s" % test_y)
         print("pred_y = \n%s" % pred_y)
+
+        # pred_proba_y = clf.predict_proba(test_X)
         # print("pred_proba_y = \n%s" % pred_proba_y)
 
         accuracy = accuracy_score(test_y, pred_y)
