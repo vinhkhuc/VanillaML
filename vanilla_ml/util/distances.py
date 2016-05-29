@@ -25,18 +25,20 @@ def compute_dist_matrix(X, cluster_centroids, distance):
     return dist_matrix
 
 
-def dist(x, y, distance):
+def dist(x1, x2, distance):
     """ Get distance between two data points.
 
     Args:
-        x (ndarray): data point, shape P
-        y (ndarray): data point, shape P
+        x1 (ndarray): data point, shape P
+        x2 (ndarray): data point, shape P
         distance (str): distance type
 
     Returns:
         float: distance between the given two data points
     """
     if distance == 'l2':
-        return np.sqrt(np.sum(np.square(x - y)))
+        return np.sqrt(np.sum(np.square(x1 - x2)))
+    elif distance == 'squared_l2':
+        return np.sum(np.square(x1 - x2))
     else:
         raise Exception("The distance '%s' is not supported." % distance)
