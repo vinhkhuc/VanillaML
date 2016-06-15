@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+from scipy.spatial.kdtree import KDTree
 
 from vanilla_ml.base.kdtree import KDTree
 

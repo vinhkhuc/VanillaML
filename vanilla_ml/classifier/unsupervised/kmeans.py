@@ -3,7 +3,7 @@ KMeans clustering
 """
 import numpy as np
 from vanilla_ml.classifier.unsupervised.abstract_clustering import AbstractClustering
-from vanilla_ml.util.distances import compute_dist_matrix
+from vanilla_ml.util import distances
 
 
 class KMeans(AbstractClustering):
@@ -46,8 +46,8 @@ class KMeans(AbstractClustering):
 
         while True:
             # Calculate cluster centroids.
-            # NOTE: In order speed up the calculation, centroid calculate we can
-            # convert y to one-hot matrix. Then, centroids = y_one_hot.T * X
+            # NOTE: In order speed up the calculation, we can convert y to one-hot matrix.
+            # Then centroids can be computed as centroids = y_one_hot.T * X
             cluster_sizes.fill(0)
             for x_i, y_i in zip(X, y):
                 cluster_centroids[y_i] += x_i
@@ -55,7 +55,7 @@ class KMeans(AbstractClustering):
             cluster_centroids /= cluster_sizes[:, None]
 
             # Reassign samples to new clusters
-            dist_matrix = compute_dist_matrix(X, cluster_centroids, self.distance)
+            dist_matrix = distances.compute_dist_matrix(X, cluster_centroids, self.distance)
             next_y = dist_matrix.argmin(axis=1)
 
             # Check if clusters have changed
@@ -69,5 +69,5 @@ class KMeans(AbstractClustering):
         self.cluster_centroids = cluster_centroids
 
     def predict(self, X):
-        dist_matrix = compute_dist_matrix(X, self.cluster_centroids, self.distance)
+        dist_matrix = distances.compute_dist_matrix(X, self.cluster_centroids, self.distance)
         return dist_matrix.argmin(axis=1)

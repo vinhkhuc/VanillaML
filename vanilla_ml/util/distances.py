@@ -4,24 +4,24 @@ Utility to compute various distances
 import numpy as np
 
 
-def compute_dist_matrix(X, cluster_centroids, distance):
+def compute_dist_matrix(X1, X2, distance):
     """ Compute the distance matrix where each element m[i][j] is
-    the distance between X[i] and centroids[j].
+    the distance between X1[i] and X2[j].
 
     Args:
-        X (ndarray): samples, shape N x P.
-        cluster_centroids (ndarray): cluster centroids, shape K x P.
+        X1 (ndarray): shape N x P.
+        X2 (ndarray): shape M x P.
         distance (str): distance type.
 
     Returns:
-        ndarray: distance matrix, shape N x K.
+        ndarray: distance matrix, shape N x M.
 
     """
-    N, K = X.shape[0], cluster_centroids.shape[0]
-    dist_matrix = np.zeros((N, K))
+    N, M = X1.shape[0], X2.shape[0]
+    dist_matrix = np.zeros((N, M))
     for i in range(N):
-        for k in range(K):
-            dist_matrix[i][k] = dist(X[i], cluster_centroids[k], distance=distance)
+        for j in range(M):
+            dist_matrix[i][j] = dist(X1[i], X2[j], distance=distance)
     return dist_matrix
 
 

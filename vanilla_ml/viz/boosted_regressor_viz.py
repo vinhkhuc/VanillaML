@@ -12,6 +12,7 @@ from vanilla_ml.regression.gradient_boosted_regressor import GradientBoostedRegr
 
 # FIXME: After iteration 20 (?), nothing changes
 # FIXME: Linear Regression doesn't work with GradientBoosting.
+from vanilla_ml.regression.knn_regressor import KNNRegressor
 from vanilla_ml.regression.linear_regression import LinearRegressor
 from vanilla_ml.regression.mlp_regressor import MLPRegressor
 from vanilla_ml.util.metrics.rmse import rmse_score
@@ -41,9 +42,10 @@ def run_boosted_regression_tree(i, X, train_y, test_y, ax):
 
     # base_regr = DecisionTreeRegressor(max_depth=1)
     # base_regr = LinearRegressor(solver='analytical')  # boosted linear regression will be a line !!!
-    base_regr = MLPRegressor(layers=[200], batch_size=len(X), n_epochs=500, learning_rate=0.1)
+    # base_regr = MLPRegressor(layers=[200], batch_size=len(X), n_epochs=500, learning_rate=0.1)
+    base_regr = KNNRegressor(k=11)
     # base_regr = KerasRegressor(layer_sizes=[2], batch_size=100, n_rounds=10)
-    regr = GradientBoostedRegressor(base_regr, num_rounds=i + 1, alpha=1.0)
+    regr = GradientBoostedRegressor(base_regr, num_rounds=i + 1, alpha=0.1)
 
     print("\n* Iteration = %d" % (i + 1))
     print("Fitting ...")
