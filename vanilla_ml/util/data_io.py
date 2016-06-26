@@ -13,6 +13,21 @@ def _get_train_test_split(X, y):
     return train_test_split(X, y, test_size=0.25, random_state=42)
 
 
+def load_iris():
+    iris = datasets.load_iris()
+    return iris.data, iris.target
+
+
+def load_digits():
+    digits = datasets.load_digits()
+    return digits.data, digits.target
+
+
+def load_boston():
+    boston = datasets.load_boston()
+    return boston.data, boston.target
+
+
 def get_xor_train_test(num_data_points=100):
     X = np.zeros((num_data_points, 2))
     y = np.zeros(num_data_points, dtype=int)
@@ -26,14 +41,13 @@ def get_xor_train_test(num_data_points=100):
 
 
 def get_iris_train_test():
-    iris = datasets.load_iris()
-    return _get_train_test_split(iris.data, iris.target)
+    X, y = load_iris()
+    return _get_train_test_split(X, y)
 
 
 # Two linearly separated classes
 def get_setosa_vericolour_iris_train_test():
-    iris = datasets.load_iris()
-    orig_X, orig_y = iris.data, iris.target
+    orig_X, orig_y = load_iris()
 
     # Setosa = 0, Vericolour = 1 (ref: https://archive.ics.uci.edu/ml/datasets/Iris)
     X = orig_X[orig_y != 2]
@@ -44,8 +58,7 @@ def get_setosa_vericolour_iris_train_test():
 
 # Two linearly non-separated classes
 def get_vericolour_virginica_iris_train_test():
-    iris = datasets.load_iris()
-    orig_X, orig_y = iris.data, iris.target
+    orig_X, orig_y = load_iris()
 
     # Vericolour = 1, Virginica = 2 (ref: https://archive.ics.uci.edu/ml/datasets/Iris)
     X = orig_X[orig_y != 0]
@@ -56,8 +69,8 @@ def get_vericolour_virginica_iris_train_test():
 
 
 def get_digits_train_test():
-    digits = datasets.load_digits()
-    return _get_train_test_split(digits.data, digits.target)
+    X, y = load_digits()
+    return _get_train_test_split(X, y)
 
 
 def get_20newsgroup_train_test(feature_selection=False):
@@ -96,8 +109,8 @@ def get_moons_train_test(num_samples=100):
 
 
 def get_boston_train_test():
-    boston = datasets.load_boston()
-    return _get_train_test_split(boston.data, boston.target)
+    X, y = load_boston()
+    return _get_train_test_split(X, y)
 
 
 def get_clustering_data(n_samples=750, centers=None, cluster_std=0.4, random_state=42):

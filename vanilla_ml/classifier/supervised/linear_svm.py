@@ -68,7 +68,7 @@ class LinearSVM(AbstractClassifier):
             self.w -= (1. / self.mini_batch_size) * self.lr * grad
 
             # Check for convergence
-            if misc.array_equals(self.w, prev_w, self.tol):
+            if np.allclose(self.w, prev_w, atol=self.tol):
                 if self.verbose:
                     print("Converged.")
                 break
