@@ -38,6 +38,3 @@ class TestKNNClassifier(unittest.TestCase):
         print("Accuracy = %g%%" % (100 * accuracy))
 
         self.assertGreaterEqual(accuracy, 0.95)
-
-if __name__ == '__main__':
-    unittest.main()

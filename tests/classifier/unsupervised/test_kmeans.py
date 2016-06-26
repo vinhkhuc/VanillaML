@@ -26,7 +26,3 @@ class TestKMeans(unittest.TestCase):
         purity = cluster_purity(y, pred_y)
         print("Cluster purity = %.2f%%" % (100. * purity))
         self.assertGreaterEqual(purity, 0.9)
-
-
-if __name__ == '__main__':
-    unittest.main()

@@ -18,7 +18,3 @@ class TestKDTree(unittest.TestCase):
         print("Find nearest neighbor ...")
         test_X = np.array([[3, 5], [4.5, 2]])
         print(kd_tree.find_nearest(test_X))
-
-if __name__ == '__main__':
-    unittest.main()
-

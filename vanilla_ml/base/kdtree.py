@@ -90,7 +90,7 @@ def _find_nearest(X_i, node, k, depth):
         depth (int): current depth.
 
     Returns:
-        tuple: a tuple of (list of nearest node, list of corresponding distances, height from the leaf node).
+        tuple: a tuple of (nearest node, distance to the nearest node, height from the leaf node).
 
     """
     assert X_i.ndim == 1, "The input data point must be a 1-D array."
@@ -110,7 +110,7 @@ def _find_nearest(X_i, node, k, depth):
 
     # Recursively traverse down
     next_node = node.left if X_i[split_axis] < node_X[split_axis] else node.right
-    best_nearests, best_dists, height = _find_nearest(X_i, next_node, k, depth + 1)
+    best_nearest, best_dist, height = _find_nearest(X_i, next_node, k, depth + 1)
 
     if height <= 2:
         # Check siblings

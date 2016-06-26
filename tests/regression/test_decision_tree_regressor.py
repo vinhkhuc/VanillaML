@@ -26,6 +26,3 @@ class TestDecisionTreeRegressor(unittest.TestCase):
 
         self.assertLessEqual(rmse, 6)
 
-if __name__ == '__main__':
-    unittest.main()
-

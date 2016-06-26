@@ -26,6 +26,3 @@ class TestDecisionTreeClassifier(unittest.TestCase):
         print("Accuracy = %g%%" % (100 * accuracy))
 
         self.assertGreaterEqual(accuracy, 0.7)
-
-if __name__ == '__main__':
-    unittest.main()
