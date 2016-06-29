@@ -4,31 +4,26 @@ variance of a data set using the fewest number of uncorrelated variables which a
 "principal components".
 """
 import numpy as np
-from vanilla_ml.util.scaling.standard_scaler import StandardScaler
 
 
 class PCA(object):
 
     def __init__(self, n_components=3):
         self.n_components = n_components
-        self.scaler = None
+        self.mean = None
         self.largest_components = None
 
     def fit(self, X):
-        # Apply standard scaler
-        self.scaler = StandardScaler()
-        scaled_X = self.scaler.fit_transform(X)
-        cov_matrix = np.cov(scaled_X.T)
+        # Center the data
+        self.mean = X.mean(axis=0)
+        scaled_X = X - self.mean
 
-        # Compute eigenvectors and eigenvalues
-        eigen_values, eigen_vectors = np.linalg.eig(cov_matrix)
-
-        sorted_idx = np.abs(eigen_values).argsort()[::-1]
-        self.largest_components = eigen_vectors[:, sorted_idx[:self.n_components]].T
-        # print(self.largest_components.T)
+        # The returned eigenvectors are sorted in the decreasing order of their corresponding eigenvalues.
+        U, S, V = np.linalg.svd(scaled_X, full_matrices=False)
+        self.largest_components = V[:self.n_components]
 
     def transform(self, X):
-        scaled_X = self.scaler.transform(X)
+        scaled_X = X - self.mean
         return np.dot(scaled_X, self.largest_components.T)
 
     def fit_transform(self, X):

@@ -15,6 +15,7 @@ class TestPCA(unittest.TestCase):
 
         print("X's shape = %s" % (X.shape, ))
         pca = PCA(n_components=2)
+        # pca = skPCA(n_components=2)
 
         print("Fitting ...")
         pca.fit(X)
