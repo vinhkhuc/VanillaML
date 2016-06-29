@@ -11,12 +11,13 @@ class PCA(object):
 
     def __init__(self, n_components=3):
         self.n_components = n_components
+        self.scaler = None
         self.largest_components = None
 
     def fit(self, X):
         # Apply standard scaler
-        scaled_X = StandardScaler().fit_transform(X)
-        # scaled_X = X - X.mean(axis=0)
+        self.scaler = StandardScaler()
+        scaled_X = self.scaler.fit_transform(X)
         cov_matrix = np.cov(scaled_X.T)
 
         # Compute eigenvectors and eigenvalues
@@ -27,7 +28,8 @@ class PCA(object):
         # print(self.largest_components.T)
 
     def transform(self, X):
-        return np.dot(X, self.largest_components.T)
+        scaled_X = self.scaler.transform(X)
+        return np.dot(scaled_X, self.largest_components.T)
 
     def fit_transform(self, X):
         self.fit(X)
