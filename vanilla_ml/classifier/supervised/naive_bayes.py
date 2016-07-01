@@ -1,3 +1,6 @@
+# Ref: Jurasky's book: https://web.stanford.edu/~jurafsky/slp3/7.pdf
+# See pseudo code Figure 7.2
+
 # TODO: Reimplement this
 
 # import math

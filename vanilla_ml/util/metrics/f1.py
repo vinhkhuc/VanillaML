@@ -7,72 +7,72 @@ Compute F1 score
 Ref: https://www.kaggle.com/wiki/Metrics
 
 """
-
 import numpy as np
 
+import metric_common
 
-def f1_score(pred_y, true_y):
+
+def f1_score(true_y, pred_y):
     """ F1 score
 
     Args:
-        pred_y (ndarray): shape N
         true_y (ndarray): shape N
+        pred_y (ndarray): shape N
 
     Returns:
         float: f1 score
 
     """
-    assert _check_binary(pred_y) and _check_binary(true_y), "Only binary arrays are supported."
+    assert metric_common.check_binary(true_y) and metric_common.check_binary(pred_y), \
+        "Only binary arrays are supported."
 
-    pred_y = pred_y.squeeze()
     true_y = true_y.squeeze()
+    pred_y = pred_y.squeeze()
 
-    p = precision(pred_y, true_y)
-    r = recall(pred_y, true_y)
+    p = precision(true_y, pred_y)
+    r = recall(true_y, pred_y)
     return 2 * p * r / (p + r)
 
 
-def precision(pred_y, true_y):
+def precision(true_y, pred_y):
     """ Precision
 
     Args:
-        pred_y (ndarray): shape N
         true_y (ndarray): shape N
+        pred_y (ndarray): shape N
 
     Returns:
         float: precision score
 
     """
-    assert _check_binary(pred_y) and _check_binary(true_y), "Only binary arrays are supported."
+    assert metric_common.check_binary(true_y) and metric_common.check_binary(pred_y), \
+        "Only binary arrays are supported."
 
-    pred_y = pred_y.squeeze()
     true_y = true_y.squeeze()
+    pred_y = pred_y.squeeze()
 
-    tp = np.sum(pred_y == true_y)
+    tp = np.sum(true_y == pred_y)
     fp = np.sum((pred_y == 1) & (true_y == 0))
     return float(tp) / (tp + fp)
 
 
-def recall(pred_y, true_y):
+def recall(true_y, pred_y):
     """ Recall
 
     Args:
-        pred_y (ndarray): shape N
         true_y (ndarray): shape N
+        pred_y (ndarray): shape N
 
     Returns:
         float: recall score
 
     """
-    assert _check_binary(pred_y) and _check_binary(true_y), "Only binary arrays are supported."
+    assert metric_common.check_binary(true_y) and metric_common.check_binary(pred_y), \
+        "Only binary arrays are supported."
 
-    pred_y = pred_y.squeeze()
     true_y = true_y.squeeze()
+    pred_y = pred_y.squeeze()
 
     tp = np.sum(pred_y == true_y)
     fn = np.sum((pred_y == 0) & (true_y == 1))
     return float(tp) / (tp + fn)
-
-
-def _check_binary(x):
-    return np.all((x == 0) | (x == 1))
