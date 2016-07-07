@@ -1,10 +1,9 @@
 import unittest
 
-from sklearn.preprocessing.data import StandardScaler
-
 from vanilla_ml.regression.knn_regressor import KNNRegressor
 from vanilla_ml.util import data_io
 from vanilla_ml.util.metrics.rmse import rmse_score
+from vanilla_ml.util.scaling.standard_scaler import StandardScaler
 
 
 class TestKNNRegressor(unittest.TestCase):

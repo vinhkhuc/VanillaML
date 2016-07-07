@@ -92,3 +92,16 @@ def log_sum_exp(X):
     max_X = X.max(axis=1)
     return max_X + np.log(np.sum(np.exp(X - max_X[:, None]), axis=1))
 
+
+def train_test_split(X, y, test_size=0.25, random_state=42):
+    """
+
+    Args:
+        X:
+        y:
+        test_size:
+        random_state:
+
+    Returns:
+
+    """

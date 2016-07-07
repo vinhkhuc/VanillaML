@@ -1,5 +1,7 @@
 import unittest
+
 import numpy as np
+
 from vanilla_ml.util.metrics import f1
 
 

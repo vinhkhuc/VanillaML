@@ -3,10 +3,11 @@ import random
 import numpy as np
 from sklearn import datasets
 from sklearn.cross_validation import train_test_split
-from sklearn.datasets.samples_generator import make_moons, make_blobs
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.preprocessing.data import StandardScaler
-from sklearn.svm import LinearSVC
+# from sklearn.datasets.samples_generator import make_moons, make_blobs
+# from sklearn.feature_extraction.text import CountVectorizer
+# from sklearn.preprocessing.data import StandardScaler
+# from sklearn.svm import LinearSVC
+from vanilla_ml.util.scaling.standard_scaler import StandardScaler
 
 
 def _get_train_test_split(X, y):
