@@ -1,7 +1,19 @@
 # Ref: Jurasky's book: https://web.stanford.edu/~jurafsky/slp3/7.pdf
 # See pseudo code Figure 7.2
+from vanilla_ml.classifier.supervised.abstract_classifier import AbstractClassifier
 
-# TODO: Reimplement this
+
+class NaiveBayesClassifier(AbstractClassifier):
+
+    def __init__(self):
+        raise NotImplemented()
+
+    def fit(self, X, y, sample_weights=None):
+        pass
+
+    def predict_proba(self, X):
+        pass
+
 
 # import math
 # import numpy as np
@@ -14,10 +26,6 @@
 # "Tackling the Poor Assumptions of Naive Bayes Text Classifiers"
 # (http://people.csail.mit.edu/jrennie/papers/icml03-nb.pdf)
 #
-# TODO: Try to implement Complement Multinomial NB.
-# """
-#
-# """
 # * Accuracy:
 #     + digits: 85.33%
 #         ===> 70.44% with Complement Multinomial NB

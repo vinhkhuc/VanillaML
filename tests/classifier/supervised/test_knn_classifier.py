@@ -1,11 +1,8 @@
 import unittest
 
-from sklearn.neighbors.classification import KNeighborsClassifier as skKNNClassifier
-from sklearn.preprocessing.data import StandardScaler
-
-from vanilla_ml.classifier.supervised.knn_classifier import KNNClassifier
 from vanilla_ml.util import data_io
 from vanilla_ml.util.metrics.accuracy import accuracy_score
+from vanilla_ml.util.scaling.standard_scaler import StandardScaler
 
 
 class TestKNNClassifier(unittest.TestCase):
@@ -20,8 +17,7 @@ class TestKNNClassifier(unittest.TestCase):
         train_X = scaler.fit_transform(train_X)
         test_X = scaler.transform(test_X)
 
-        # clf = KNNClassifier(k=3)
-        clf = skKNNClassifier(n_neighbors=1)
+        clf = KNNClassifier(k=3)
         print("clf: %s" % clf)
 
         print("Fitting ...")

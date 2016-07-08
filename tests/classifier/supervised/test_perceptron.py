@@ -1,10 +1,9 @@
 import unittest
 
-from sklearn.preprocessing.data import StandardScaler
-
 from vanilla_ml.classifier.supervised.perceptron import Perceptron
 from vanilla_ml.util import data_io
 from vanilla_ml.util.metrics.accuracy import accuracy_score
+from vanilla_ml.util.scaling.standard_scaler import StandardScaler
 
 
 class TestPerceptron(unittest.TestCase):

@@ -1,11 +1,9 @@
 import unittest
 
-from sklearn.linear_model.stochastic_gradient import SGDClassifier
-from sklearn.preprocessing.data import StandardScaler
-
 from vanilla_ml.classifier.supervised.linear_svm import LinearSVM
 from vanilla_ml.util import data_io
 from vanilla_ml.util.metrics.accuracy import accuracy_score
+from vanilla_ml.util.scaling.standard_scaler import StandardScaler
 
 
 class TestLinearSVM(unittest.TestCase):

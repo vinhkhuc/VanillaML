@@ -1,11 +1,9 @@
 import unittest
 
-from sklearn.linear_model.logistic import LogisticRegression as skLogisticRegression
-from sklearn.preprocessing.data import StandardScaler
-
 from vanilla_ml.classifier.supervised.logistic_regression import LogisticRegression
 from vanilla_ml.util import data_io
 from vanilla_ml.util.metrics.accuracy import accuracy_score
+from vanilla_ml.util.scaling.standard_scaler import StandardScaler
 
 
 class TestLogisticRegression(unittest.TestCase):

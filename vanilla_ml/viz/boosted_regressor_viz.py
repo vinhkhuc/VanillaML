@@ -6,16 +6,12 @@ import numpy as np
 # matplotlib.rcParams["animation.convert_path"] = "Full path to imagemagic's convert.exe"
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
-from sklearn.neighbors.regression import KNeighborsRegressor
 
-from vanilla_ml.regression.decision_tree_regressor import DecisionTreeRegressor
 from vanilla_ml.regression.gradient_boosted_regressor import GradientBoostedRegressor
 
 # FIXME: After iteration 20 (?), nothing changes
 # FIXME: Linear Regression doesn't work with GradientBoosting.
 from vanilla_ml.regression.knn_regressor import KNNRegressor
-from vanilla_ml.regression.linear_regression import LinearRegressor
-from vanilla_ml.regression.mlp_regressor import MLPRegressor
 from vanilla_ml.util.metrics.rmse import rmse_score
 
 
@@ -36,17 +32,12 @@ def viz():
                                   fargs=(X, train_y, test_y, ax),
                                   blit=False, interval=2000, repeat=True)
     plt.show()
-    # ani.save('KMeans.gif', writer='imagemagick')
+    # ani.save('BoostedRegressor.gif', writer='imagemagick')
 
 
 def run_boosted_regression_tree(i, X, train_y, test_y, ax):
 
-    # base_regr = DecisionTreeRegressor(max_depth=1)
-    # base_regr = LinearRegressor(solver='analytical')  # boosted linear regression will be a line !!!
-    # base_regr = MLPRegressor(layers=[200], batch_size=len(X), n_epochs=500, learning_rate=0.1)
     base_regr = KNNRegressor(k=3)
-    # base_regr = KNeighborsRegressor(n_neighbors=3)
-    # base_regr = KerasRegressor(layer_sizes=[2], batch_size=100, n_rounds=10)
     regr = GradientBoostedRegressor(base_regr, num_rounds=i + 1, alpha=0.1)
 
     print("\n* Iteration = %d" % (i + 1))

@@ -23,6 +23,4 @@ def roc_score(true_y, pred_proba_y):
     assert metric_common.check_binary(true_y) and metric_common.check_range(pred_proba_y, 0, 1), \
         "true_y must be from {0, 1} and pred_proba_y must be in the range [0, 1]."
 
-    from sklearn.metrics import roc_auc_score
-
     raise NotImplemented("To be implemented :(")

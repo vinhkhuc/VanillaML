@@ -1,8 +1,7 @@
 import unittest
 
-import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.decomposition.pca import PCA as skPCA
+import numpy as np
 
 from vanilla_ml.classifier.unsupervised.pca import PCA
 from vanilla_ml.util import data_io
