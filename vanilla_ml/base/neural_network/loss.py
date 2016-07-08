@@ -1,7 +1,6 @@
 from abc import ABCMeta, abstractmethod
-import numpy as np
 
-from vanilla_ml.util.metrics.rmse import rmse_score
+import numpy as np
 
 
 class Loss(object):

@@ -3,8 +3,8 @@ Random forest works by averaging results of multiples small decision trees.
 """
 import numpy as np
 
-from vanilla_ml.classifier.supervised.decision_tree_classifier import DecisionTreeClassifier
-from vanilla_ml.regression.decision_tree_regressor import DecisionTreeRegressor
+from vanilla_ml.supervised.classification.decision_tree_classifier import DecisionTreeClassifier
+from vanilla_ml.supervised.regression.decision_tree_regressor import DecisionTreeRegressor
 
 
 class RandomForestBase(object):

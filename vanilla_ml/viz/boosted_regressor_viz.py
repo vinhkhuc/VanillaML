@@ -7,11 +7,11 @@ import numpy as np
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 
-from vanilla_ml.regression.gradient_boosted_regressor import GradientBoostedRegressor
+from vanilla_ml.supervised.regression.gradient_boosted_regressor import GradientBoostedRegressor
 
 # FIXME: After iteration 20 (?), nothing changes
 # FIXME: Linear Regression doesn't work with GradientBoosting.
-from vanilla_ml.regression.knn_regressor import KNNRegressor
+from vanilla_ml.supervised.regression.knn_regressor import KNNRegressor
 from vanilla_ml.util.metrics.rmse import rmse_score
 
 
