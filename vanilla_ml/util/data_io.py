@@ -44,6 +44,7 @@ def load_boston():
     module_path = path.dirname(__file__)
     with gzip.open(path.join(module_path, DATASET_PATH, BOSTON_CSV_GZ)) as f:
         reader = csv.reader(f)
+        next(reader)  # skip the first row which contains meta-data
         X, y = [], []
         for row in reader:
             X.append(np.array(row[:-1], np.float))
