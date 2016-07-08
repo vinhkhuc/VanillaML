@@ -2,6 +2,7 @@
 Misc utility
 """
 import numpy as np
+from __future__ import division
 
 
 def sigmoid(x):
@@ -94,14 +95,105 @@ def log_sum_exp(X):
 
 
 def train_test_split(X, y, test_size=0.25, random_state=42):
-    """
+    """ Split the data set into training and test sets.
 
     Args:
-        X:
-        y:
-        test_size:
-        random_state:
+        X (ndarray): data
+        y (ndarray): target
+        test_size (float): percentage of the test set
+        random_state (int): random state
 
     Returns:
+        tuple: a tuple of X_train, X_test, y_train, y_test
 
     """
+    assert X.shape[0] == y.shape[0], "X, y have mismatched lengths"
+    orig_size = X.shape[0]
+    train_size = int(orig_size * (1 - test_size))
+    np.random.seed(random_state)
+    rand_indices = np.random.permutation(orig_size)
+    train_indices, test_indices = \
+        rand_indices[:train_size], rand_indices[train_size:]
+
+    return X[train_indices], X[test_indices], \
+           y[train_indices], y[test_indices]
+
+
+# Adapted from sklearn's make_moons()
+def make_moons(n_samples, noise=0.3, random_state=42, factor=.8):
+    """ Generate two moons.
+
+    Args:
+        n_samples (int): number of samples to generate
+        noise (float): noise level
+        random_state (int): random state
+
+    Returns:
+        tuple: a tuple of X and y
+
+    """
+    linspace = np.linspace(0, 2 * np.pi, n_samples // 2 + 1)[:-1]
+    outer_circ_x = np.cos(linspace)
+    outer_circ_y = np.sin(linspace)
+    inner_circ_x = outer_circ_x * factor
+    inner_circ_y = outer_circ_y * factor
+
+    X = np.vstack((np.append(outer_circ_x, inner_circ_x),
+                   np.append(outer_circ_y, inner_circ_y))).T
+    y = np.hstack([np.zeros(n_samples // 2, dtype=np.intp),
+                   np.ones(n_samples // 2, dtype=np.intp)])
+
+    # Add noise
+    X += np.random.normal(scale=noise, size=X.shape)
+
+    # Shuffle
+    np.random.seed(random_state)
+    shuffled_indices = np.random.permutation(n_samples)
+    return X[shuffled_indices], y[shuffled_indices]
+
+
+# Adapted from sklearn's make_blobs
+def make_blobs(n_samples=100, n_features=2, n_centers=3, centers=None, cluster_std=1.0,
+               center_range=(-10.0, 10.0), random_state=None):
+    """ Draw random data from Gaussian for clustering.
+
+    Args:
+        n_samples (int): number of samples to generate.
+        n_features (int): number of features, i.e. data point's dimensions.
+        n_centers (int): number of clusters
+        centers (Optional[ndarray]): an array of shape [n_centers, n_features]
+                                    for center locations.
+        cluster_std (float): cluster's standard deviation.
+        center_range (tuple): a tuple of min and max values of cluster centers.
+        random_state (int): random state.
+
+    Returns:
+        tuple: a tuple of data and target.
+
+    """
+    np.random.seed(random_state)
+
+    # Generate random cluster centers if they are not given
+    if centers is None:
+        center_low, center_high = center_range
+        centers = np.random.uniform(center_low, center_high,
+                                    size=(centers, n_features))
+    else:
+        n_features = centers.shape[1]
+
+    # Calculate number of samples per center
+    n_samples_per_center = [int(n_samples // centers)] * centers
+    for i in range(n_samples % centers):
+        n_samples_per_center[i] += 1
+
+    # Generate blobs
+    X = []
+    y = []
+    for i, (n, std) in enumerate(zip(n_samples_per_center, cluster_std)):
+        X.append(centers[i] + np.random.normal(scale=std, size=(n, n_features)))
+        y += [i] * n
+
+    X = np.array(X)
+    y = np.array(y)
+    rand_indices = np.random.permutation(n_samples)
+    return X[rand_indices], y[rand_indices]

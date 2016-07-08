@@ -1,2 +1,3 @@
 *.pyc
-dataset/**
+*.pyo
+*.pyd

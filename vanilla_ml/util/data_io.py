@@ -1,13 +1,16 @@
+import gzip
 import random
-
+import csv
+from os import path
 import numpy as np
-from sklearn import datasets
-from sklearn.cross_validation import train_test_split
-# from sklearn.datasets.samples_generator import make_moons, make_blobs
-# from sklearn.feature_extraction.text import CountVectorizer
-# from sklearn.preprocessing.data import StandardScaler
-# from sklearn.svm import LinearSVC
+from vanilla_ml.util.misc import train_test_split, make_moons, make_blobs
 from vanilla_ml.util.scaling.standard_scaler import StandardScaler
+
+
+DATASET_PATH = path.join('..', '..', 'dataset')
+IRIS_CSV_GZ = 'iris.csv.gz'
+BOSTON_CSV_GZ = 'boston.csv.gz'
+DIGITS_CSV_GZ = 'digits.csv.gz'
 
 
 def _get_train_test_split(X, y):
@@ -15,18 +18,37 @@ def _get_train_test_split(X, y):
 
 
 def load_iris():
-    iris = datasets.load_iris()
-    return iris.data, iris.target
+    module_path = path.dirname(__file__)
+    with gzip.open(path.join(module_path, DATASET_PATH, IRIS_CSV_GZ)) as f:
+        reader = csv.reader(f)
+        next(reader)  # skip the first row which contains meta-data
+        data, targets = [], []
+        for row in reader:
+            data.append(np.array(row[:-1], np.float))
+            targets.append(np.array(row[-1], np.int))
+    return np.array(data), np.array(targets)
 
 
 def load_digits():
-    digits = datasets.load_digits()
-    return digits.data, digits.target
+    module_path = path.dirname(__file__)
+    with gzip.open(path.join(module_path, DATASET_PATH, DIGITS_CSV_GZ)) as f:
+        reader = csv.reader(f)
+        data, targets = [], []
+        for row in reader:
+            data.append(np.array(row[:-1], np.float))
+            targets.append(np.array(row[-1], np.int))
+    return np.array(data), np.array(targets)
 
 
 def load_boston():
-    boston = datasets.load_boston()
-    return boston.data, boston.target
+    module_path = path.dirname(__file__)
+    with gzip.open(path.join(module_path, DATASET_PATH, BOSTON_CSV_GZ)) as f:
+        reader = csv.reader(f)
+        X, y = [], []
+        for row in reader:
+            X.append(np.array(row[:-1], np.float))
+            y.append(np.array(row[-1], np.float))
+    return np.array(X), np.array(y)
 
 
 def get_xor_train_test(num_data_points=100):
@@ -74,34 +96,34 @@ def get_digits_train_test():
     return _get_train_test_split(X, y)
 
 
-def get_20newsgroup_train_test(feature_selection=False):
-    # twenty_newsgroups = datasets.fetch_20newsgroups_vectorized(subset="test")
-    twenty_newsgroups = datasets.fetch_20newsgroups(subset="test")
+# def get_20newsgroup_train_test(feature_selection=False):
+#     # twenty_newsgroups = datasets.fetch_20newsgroups_vectorized(subset="test")
+#     twenty_newsgroups = datasets.fetch_20newsgroups(subset="test")
+#
+#     vectorizer = CountVectorizer(dtype=np.int16)
+#     X = vectorizer.fit_transform(twenty_newsgroups.data)
+#     y = twenty_newsgroups.target
+#
+#     if feature_selection:
+#         print("X's old shape = {0}".format(X.shape))
+#         feature_selector = LinearSVC(C=1., penalty="l1", dual=False)
+#         # feature_selector = SelectKBest(chi2, k=100)
+#         print("Doing feature selection using {0} ...".format(feature_selector))
+#         X_new = feature_selector.fit_transform(X, y)
+#         X = X_new
+#         print("X's new shape = {0}".format(X.shape))
+#
+#     return _get_train_test_split(X, y)
 
-    vectorizer = CountVectorizer(dtype=np.int16)
-    X = vectorizer.fit_transform(twenty_newsgroups.data)
-    y = twenty_newsgroups.target
 
-    if feature_selection:
-        print("X's old shape = {0}".format(X.shape))
-        feature_selector = LinearSVC(C=1., penalty="l1", dual=False)
-        # feature_selector = SelectKBest(chi2, k=100)
-        print("Doing feature selection using {0} ...".format(feature_selector))
-        X_new = feature_selector.fit_transform(X, y)
-        X = X_new
-        print("X's new shape = {0}".format(X.shape))
-
-    return _get_train_test_split(X, y)
-
-
-def get_rcv1_train_test():
-    X, y = datasets.load_svmlight_file("../dataset/supervised/rcv1_train.multiclass")
-
-    # Filtering
-    X = X[y <= 2]
-    y = y[y <= 2]
-
-    return _get_train_test_split(X.toarray(), y)
+# def get_rcv1_train_test():
+#     X, y = datasets.load_svmlight_file("../dataset/supervised/rcv1_train.multiclass")
+#
+#     # Filtering
+#     X = X[y <= 2]
+#     y = y[y <= 2]
+#
+#     return _get_train_test_split(X.toarray(), y)
 
 
 def get_moons_train_test(num_samples=100):
@@ -117,7 +139,8 @@ def get_boston_train_test():
 def get_clustering_data(n_samples=750, centers=None, cluster_std=0.4, random_state=42):
     if centers is None:
         centers = [[1, 1], [-1, -1], [1, -1]]
-    X, y = make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std, random_state=random_state)
+    X, y = make_blobs(n_samples=n_samples, centers=centers,
+                      cluster_std=cluster_std, random_state=random_state)
     X = StandardScaler().fit_transform(X)
     return X, y
 
