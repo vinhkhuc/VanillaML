@@ -40,9 +40,17 @@ $ sudo pip install -r requirements.txt
 
 ## Demos
 
-![KMeans](http://i.imgur.com/uZKqKXi.gif)
+<p align="center">
+    <img width="500" high="500" src="http://i.imgur.com/uZKqKXi.gif">
+    <br>
+    KMeans clustering.
+</p>
 
-![Gradient Boosted Regressor](http://i.imgur.com/uSDPY0x.gif)
+<p align="center">
+    <img width="500" high="500" src="http://i.imgur.com/uSDPY0x.gif">
+    <br>
+    A gradient boosted regressor fitting the curve x * sin(x) using a decision tree with the depth 3 as the base regressor.
+</p>
 
 ## License
 BSD
