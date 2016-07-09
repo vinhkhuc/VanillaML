@@ -2,7 +2,7 @@ import unittest
 
 from sklearn.preprocessing.data import StandardScaler
 
-from vanilla_ml.supervised.classification.neural_network.mlp_classifier import MLPClassifier
+from vanilla_ml.supervised.classification.mlp_classifier import MLPClassifier
 from vanilla_ml.util import data_io
 from vanilla_ml.util.metrics.accuracy import accuracy_score
 
