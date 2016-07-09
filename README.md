@@ -1,10 +1,10 @@
 # VanillaML
-VanillaML contains a collection of my implementations of standard machine learning algorithms. 
+VanillaML contains a collection of popular machine learning algorithms. 
 
 All implementations are made to be as simple as possible. That said, there are no bells and whistles to 
 speed up model's performance for production usage. The implementations follows scikit-learn's API conventions.
 
- [Demos](#demos)
+ <p align="center">[Demos](#demos)</p>
 
 ## Requirements
 * Python 2.7
