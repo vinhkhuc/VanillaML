@@ -3,7 +3,7 @@ Animated visualization of how KMeans works
 """
 import numpy as np
 # import matplotlib
-# matplotlib.rcParams["animation.convert_path"] = "Full path to imagemagic's convert.exe"
+# matplotlib.rcParams["animation.convert_path"] = "Full path to ImageMagick's convert.exe"
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 
@@ -13,15 +13,15 @@ from vanilla_ml.util.distances import compute_dist_matrix
 
 def viz():
     # Prepare data
-    centers = [[1, 1], [-1, -1], [1, -1], [-1, 1]]
+    centers = np.array([[1, 1], [-1, -1], [1, -1], [-1, 1]])
     n_clusters = len(centers)
     X, _ = data_io.get_clustering_data(centers=centers, n_samples=1000, cluster_std=0.5)
     print("X's shape = %s" % (X.shape,))
 
     # Visualize KMeans
-    fig, ax = plt.subplots(1, 1, sharex=True, sharey=True, figsize=[10, 10], facecolor='w')
+    fig, ax = plt.subplots(1, 1, sharex=True, sharey=True, figsize=[7, 7], facecolor='w')
     ani = animation.FuncAnimation(fig, run_kmeans, range(10), fargs=(X, n_clusters, ax),
-                                  blit=False, interval=2000, repeat=True)
+                                  blit=False, interval=1000, repeat=True)
     plt.show()
     # ani.save('KMeans.gif', writer='imagemagick')
 

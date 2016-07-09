@@ -40,6 +40,9 @@ $ sudo pip install -r requirements.txt
 
 ## Demos
 
+![KMeans](http://i.imgur.com/uZKqKXi.gif)
+
+![Gradient Boosted Regressor](http://i.imgur.com/uSDPY0x.gif)
 
 ## License
 BSD
