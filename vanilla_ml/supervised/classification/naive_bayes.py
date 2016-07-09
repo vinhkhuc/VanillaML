@@ -4,12 +4,15 @@ from vanilla_ml.supervised.classification.abstract_classifier import AbstractCla
 
 
 class NaiveBayesClassifier(AbstractClassifier):
-
+    """
+    Naive Bayes classifier (currently works with dense matrices only, i.e. Numpy arrays)
+    """
     def __init__(self):
         raise NotImplemented()
+        # self._classes = None
 
     def fit(self, X, y, sample_weights=None):
-        pass
+        assert sample_weights is None, "Sample weights are not supported in NaiveBayesClassifier"
 
     def predict_proba(self, X):
         pass
@@ -44,27 +47,18 @@ class NaiveBayesClassifier(AbstractClassifier):
 #    Training time   = O(N * P), where N - number of training samples, P - number of features
 #    Prediction time =
 # """
+#
+#
 # class NaiveBayesClassifier(AbstractClassifier):
 #
 #     def __init__(self):
-#         super(NaiveBayesClassifier, self).__init__()
-#
-#         # A list of dictionaries mapping each feature to its per-class frequency
 #         self.feat_freq_by_class = None
-#
-#         # A list of class prior
 #         self._class_prior = None
-#
 #         self._classes = None
 #
-#     def fit(self, X, y):
-#         """
-#         Fit model using the given training data set.
-#         @param X: numpy array of integers n x p (n - number of training samples, p - number of features)
-#         @param y: numpy array n x 1
-#         @return: self NaiveBayes object
-#         """
-#         super(NaiveBayesClassifier, self).fit(X, y)
+#     def fit(self, X, y, sample_weights=None):
+#         assert sample_weights is None, "Sample weights are not supported in NaiveBayesClassifier"
+#
 #         class_freq = Counter(y)
 #         self._classes = np.array(sorted(class_freq.keys()))
 #
