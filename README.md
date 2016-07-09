@@ -4,7 +4,7 @@ VanillaML contains a collection of my implementations of standard machine learni
 All implementations are made to be as simple as possible. That said, there are no bells and whistles to 
 speed up model's performance for production usage. The implementations follows scikit-learn's API conventions.
 
- <h2 align="center">[Demos](#demos)</h2>
+ [Demos](#demos)
 
 ## Requirements
 * Python 2.7
