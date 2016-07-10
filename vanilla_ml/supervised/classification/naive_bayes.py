@@ -1,5 +1,7 @@
 # Ref: Jurasky's book: https://web.stanford.edu/~jurafsky/slp3/7.pdf
-# See pseudo code Figure 7.2
+# See the pseudo code in the Figure 7.2
+from __future__ import division
+import numpy as np
 from vanilla_ml.supervised.classification.abstract_classifier import AbstractClassifier
 
 
@@ -7,16 +9,43 @@ class NaiveBayesClassifier(AbstractClassifier):
     """
     Naive Bayes classifier (currently works with dense matrices only, i.e. Numpy arrays)
     """
-    def __init__(self):
-        raise NotImplemented()
-        # self._classes = None
+    def __init__(self, alpha=1):
+        """ Naive Bayes classifier.
+
+        Args:
+            alpha (float): smoothing factor
+
+        """
+        self._alpha = alpha
+        self._classes = None
+        self._log_prior = None
+        self._log_likelihood = None
+        self._V = None
 
     def fit(self, X, y, sample_weights=None):
         assert sample_weights is None, "Sample weights are not supported in NaiveBayesClassifier"
 
-    def predict_proba(self, X):
-        pass
+        C = len(np.unique(y))
+        N_doc, V = X.shape
+        self._log_prior = np.log([(sum(y == c) / N_doc) for c in range(C)])
+        self._log_likelihood = np.zeros((V, C), np.float)
+        for c in range(C):
+            count_c = X[y == c].sum(axis=0)
+            sum_count_c = sum(count_c)
+            self._log_likelihood[:, c] = np.log((count_c + self._alpha) / (sum_count_c + self._alpha))
+        self._classes = C
+        self._V = V
 
+    # FIXME: Output is not prediction probabilities
+    def predict_proba(self, X):
+        N_doc = X.shape[0]
+        pred_proba = np.empty((N_doc, self._classes), np.float)
+        for i in range(N_doc):
+            pred_proba[i] = np.copy(self._log_prior)
+            for w in range(self._V):
+                if X[i][w] != 0:
+                    pred_proba[i] += self._log_likelihood[w, :]
+        return pred_proba
 
 # import math
 # import numpy as np
