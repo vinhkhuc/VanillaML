@@ -4,7 +4,19 @@ VanillaML contains a collection of popular machine learning algorithms.
 All implementations are made to be as simple as possible. That said, there are no bells and whistles to 
 speed up model's performance for production usage. The implementations follow scikit-learn's API conventions.
 
- <p align="center">[Demos](#demos)</p>
+## Demos
+
+<p align="center">
+    <img width="500" high="500" src="http://i.imgur.com/uZKqKXi.gif">
+    <br>
+    KMeans clustering.
+</p>
+
+<p align="center">
+    <img width="500" high="500" src="http://i.imgur.com/uSDPY0x.gif">
+    <br>
+    Fitting the curve x * sin(x) with a gradient boosted tree.
+</p>
 
 ## Requirements
 * Python 2.7
@@ -39,20 +51,6 @@ $ sudo pip install -r requirements.txt
     - K-Means
 - <b>Decomposition</b>
     - PCA
-
-## Demos
-
-<p align="center">
-    <img width="500" high="500" src="http://i.imgur.com/uZKqKXi.gif">
-    <br>
-    KMeans clustering.
-</p>
-
-<p align="center">
-    <img width="500" high="500" src="http://i.imgur.com/uSDPY0x.gif">
-    <br>
-    Fitting the curve x * sin(x) with a gradient boosted tree.
-</p>
 
 ## License
 BSD
