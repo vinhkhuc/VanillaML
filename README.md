@@ -1,8 +1,6 @@
 # VanillaML
-VanillaML contains a collection of popular machine learning algorithms. 
-
-All implementations are made to be as simple as possible. That said, there are no bells and whistles to 
-speed up model's performance for production usage. The implementations follow scikit-learn's API conventions.
+VanillaML contains a collection of popular machine learning algorithms. The implementations follow 
+scikit-learn's API conventions and are made to be as simple as possible.
 
 ## Demos
 
@@ -15,7 +13,7 @@ speed up model's performance for production usage. The implementations follow sc
 <p align="center">
     <img width="500" high="500" src="http://i.imgur.com/uSDPY0x.gif">
     <br>
-    Fitting the curve x * sin(x) with a gradient boosted tree.
+    Fitting the curve x*sin(x) with a gradient boosted tree.
 </p>
 
 ## Requirements
