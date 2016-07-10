@@ -2,7 +2,7 @@
 VanillaML contains a collection of popular machine learning algorithms. 
 
 All implementations are made to be as simple as possible. That said, there are no bells and whistles to 
-speed up model's performance for production usage. The implementations follows scikit-learn's API conventions.
+speed up model's performance for production usage. The implementations follow scikit-learn's API conventions.
 
  <p align="center">[Demos](#demos)</p>
 
@@ -14,7 +14,7 @@ speed up model's performance for production usage. The implementations follows s
 $ sudo pip install -r requirements.txt
 ```
 
-## Implemented algorithms
+## Learning algorithms
 ### 1. Supervised
 - <b>Classification</b>
     - Nearest Neighbors
@@ -25,7 +25,7 @@ $ sudo pip install -r requirements.txt
     - Decision Trees
     - Random Forest
     - Feed-forward Neural Network
-    - Adaboost
+    - AdaBoost
 - <b>Regression</b>
     - Nearest Neighbors
     - Linear Regression
@@ -51,7 +51,7 @@ $ sudo pip install -r requirements.txt
 <p align="center">
     <img width="500" high="500" src="http://i.imgur.com/uSDPY0x.gif">
     <br>
-    A gradient boosted regressor fitting the curve x * sin(x) using a decision tree with the depth 3 as the base regressor.
+    Fitting the curve x * sin(x) with a gradient boosted tree.
 </p>
 
 ## License
