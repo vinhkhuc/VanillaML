@@ -1,8 +1,11 @@
 # Ref: Jurasky's book: https://web.stanford.edu/~jurafsky/slp3/7.pdf
 # See the pseudo code in the Figure 7.2
 from __future__ import division
+
 import numpy as np
+
 from vanilla_ml.supervised.classification.abstract_classifier import AbstractClassifier
+from vanilla_ml.util import misc
 
 
 class NaiveBayesClassifier(AbstractClassifier):
@@ -36,16 +39,17 @@ class NaiveBayesClassifier(AbstractClassifier):
         self._classes = C
         self._V = V
 
-    # FIXME: Output is not prediction probabilities
     def predict_proba(self, X):
         N_doc = X.shape[0]
-        pred_proba = np.empty((N_doc, self._classes), np.float)
+        confidence_vals = np.empty((N_doc, self._classes), np.float)
         for i in range(N_doc):
-            pred_proba[i] = np.copy(self._log_prior)
+            confidence_vals[i] = np.copy(self._log_prior)
             for w in range(self._V):
                 if X[i][w] != 0:
-                    pred_proba[i] += self._log_likelihood[w, :]
-        return pred_proba
+                    confidence_vals[i] += self._log_likelihood[w, :]
+
+        # Return probabilities
+        return misc.softmax(confidence_vals)
 
 # import math
 # import numpy as np

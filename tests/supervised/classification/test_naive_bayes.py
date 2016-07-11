@@ -27,4 +27,4 @@ class TestNaiveBayes(unittest.TestCase):
         accuracy = accuracy_score(test_y, pred_y)
         print("Accuracy = %g%%" % (100 * accuracy))
 
-        # self.assertGreaterEqual(accuracy, 0.82)
+        self.assertGreaterEqual(accuracy, 0.82)
