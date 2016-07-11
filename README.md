@@ -28,6 +28,7 @@ $ sudo pip install -r requirements.txt
 ### 1. Supervised
 - <b>Classification</b>
     - Nearest Neighbors
+	- Naive Bayes
     - Perceptron
     - Linear Support Vector Machines
     - Logistic Regression
