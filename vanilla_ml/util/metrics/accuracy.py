@@ -1,13 +1,13 @@
 
-def accuracy_score(true_y, pred_y):
+def accuracy_score(y_true, y_pred):
     """ Compute accuracy
 
     Args:
-        true_y (ndarray): ground truth labels
-        pred_y (ndarray): predicted labels
+        y_true (ndarray): ground truth labels
+        y_pred (ndarray): predicted labels
 
     Returns:
         float: accuracy score.
 
     """
-    return (true_y == pred_y).mean()
+    return (y_true == y_pred).mean()

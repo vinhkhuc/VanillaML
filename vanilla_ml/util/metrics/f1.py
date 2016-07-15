@@ -26,8 +26,8 @@ def f1_score(true_y, pred_y):
     assert metric_common.check_binary(true_y) and metric_common.check_binary(pred_y), \
         "Only binary arrays are supported."
 
-    true_y = true_y.squeeze()
-    pred_y = pred_y.squeeze()
+    true_y = true_y.ravel()
+    pred_y = pred_y.ravel()
 
     p = precision(true_y, pred_y)
     r = recall(true_y, pred_y)
@@ -70,8 +70,8 @@ def recall(true_y, pred_y):
     assert metric_common.check_binary(true_y) and metric_common.check_binary(pred_y), \
         "Only binary arrays are supported."
 
-    true_y = true_y.squeeze()
-    pred_y = pred_y.squeeze()
+    true_y = true_y.ravel()
+    pred_y = pred_y.ravel()
 
     tp = np.sum(pred_y == true_y)
     fn = np.sum((pred_y == 0) & (true_y == 1))
