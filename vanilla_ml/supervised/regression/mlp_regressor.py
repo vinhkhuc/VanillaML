@@ -14,23 +14,19 @@ from vanilla_ml.util.metrics.rmse import mse_score, rmse_score
 class MLPRegressor(AbstractRegressor):
 
     # TODO: n_epochs, tol shouldn't be in the constructor
-    def __init__(self, layers, fit_bias=False, learning_rate=1.0,
-                 batch_size=10, n_epochs=50, tol=1e-5, verbose=True, random_state=42):
+    def __init__(self, layers, learning_rate=1.0, batch_size=10, n_epochs=50,
+                 tol=1e-5, verbose=True, random_state=42):
 
         assert learning_rate > 0, "Learning rate must be positive."
 
-        # TODO: Remove fit_bias since it's already supported in layers.py
-        assert not fit_bias, "fit_bias is not supported."
-
         self.layers = layers
-        self.fit_bias = fit_bias
         self.lr = learning_rate
         self.batch_size = batch_size
         self.n_epochs = n_epochs
         self.tol = tol
         self.verbose = verbose
         self.random_state = random_state
-        self._classes = None
+        self.input_size = None
         self.model = None
         self.loss = None
 
@@ -40,14 +36,11 @@ class MLPRegressor(AbstractRegressor):
 
         np.random.seed(self.random_state)
 
-        # if self.fit_bias:
-        #     X = np.hstack((X, np.ones((X.shape[0], 1))))
-
-        n_samples, n_features = X.shape
-        y = y[:, None]  # Expand y to make it a 2-dimensional vector.
+        n_samples, self.input_size = X.shape
+        y = y[:, None]  # convert y to a vertical vector
 
         # Model
-        self.model, self.loss = _build_model(n_features, self.layers)
+        self.model, self.loss = self._build_model()
 
         # SGD params
         params = {"lrate": self.lr, "max_grad_norm": 40}
@@ -97,21 +90,21 @@ class MLPRegressor(AbstractRegressor):
     def predict(self, X):
         return self.model.fprop(X).squeeze()
 
+    def _build_model(self):
+        input_size, layer_sizes = self.input_size, self.layers
 
-def _build_model(input_size, layer_sizes):
+        model = Sequential()
+        for i in range(len(layer_sizes)):
+            if i == 0:
+                model.add(Linear(input_size, layer_sizes[i]))
+            else:
+                model.add(Linear(layer_sizes[i - 1], layer_sizes[i]))
+            model.add(Sigmoid())
+            # model.add(ReLU())
 
-    model = Sequential()
-    for i in range(len(layer_sizes)):
-        if i == 0:
-            model.add(Linear(input_size, layer_sizes[i]))
-        else:
-            model.add(Linear(layer_sizes[i - 1], layer_sizes[i]))
-        model.add(Sigmoid())
-        # model.add(ReLU())
+        model.add(Linear(layer_sizes[-1], 1))
 
-    model.add(Linear(layer_sizes[-1], 1))
+        # Cost
+        loss = MSELoss()
 
-    # Cost
-    loss = MSELoss()
-
-    return model, loss
+        return model, loss

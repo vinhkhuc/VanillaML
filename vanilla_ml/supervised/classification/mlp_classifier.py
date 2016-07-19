@@ -13,16 +13,13 @@ from vanilla_ml.util.metrics.accuracy import accuracy_score
 
 class MLPClassifier(AbstractClassifier):
 
-    def __init__(self, layers, fit_bias=False, learning_rate=1.0,
-                 batch_size=10, n_epochs=50, tol=1e-5, verbose=True, random_state=42):
+    # TODO: n_epochs, tol shouldn't be in the constructor
+    def __init__(self, layers, learning_rate=1.0, batch_size=10, n_epochs=50,
+                 tol=1e-5, verbose=True, random_state=42):
 
         assert learning_rate > 0, "Learning rate must be positive."
 
-        # TODO: Remove fit_bias since it's already supported in layers.py
-        assert not fit_bias, "fit_bias is not supported."
-
         self.layers = layers
-        self.fit_bias = fit_bias
         self.lr = learning_rate
         self.batch_size = batch_size
         self.n_epochs = n_epochs
@@ -30,6 +27,8 @@ class MLPClassifier(AbstractClassifier):
         self.verbose = verbose
         self.random_state = random_state
         self._classes = None
+        self.input_size = None
+        self.output_size = None
         self.model = None
         self.loss = None
 
@@ -39,18 +38,12 @@ class MLPClassifier(AbstractClassifier):
 
         np.random.seed(self.random_state)
 
-        # if self.fit_bias:
-        #     X = np.hstack((X, np.ones((X.shape[0], 1))))
-
-        n_samples, n_features = X.shape
+        n_samples, self.input_size = X.shape
         self._classes = np.unique(y)
-        n_classes = len(self._classes)
-
-        # # Convert y to one-hot matrix
-        # one_hot_y = misc.one_hot(y, n_classes)
+        self.output_size = len(self._classes)
 
         # Model
-        self.model, self.loss = _build_model(n_features, self.layers, n_classes)
+        self.model, self.loss = self._build_model()
 
         # SGD params
         params = {"lrate": self.lr, "max_grad_norm": 40}
@@ -82,44 +75,42 @@ class MLPClassifier(AbstractClassifier):
                 total_err += accuracy_score(pred, target_data)
                 total_num += self.batch_size
 
-                print("\n* Iter %d" % (it + 1))
-                # print("input_data =\n%s" % input_data)
-                # print("pred =\n%s" % pred)
-                # print("pred_proba =\n%s" % out)
-                # print("target_data =\n%s" % target_data)
-                print("loss = %s" % self.loss.fprop(out, target_data))
-                print("Accuracy = %.2f%%" % (100. * accuracy_score(target_data, pred)))
+                if self.verbose:
+                    print("\n* Iter %d" % (it + 1))
+                    print("loss = %s" % self.loss.fprop(out, target_data))
+                    print("Accuracy = %.2f%%" % (100. * accuracy_score(target_data, pred)))
 
                 # Backward propagation
                 grad_output = self.loss.bprop(out, target_data)
                 self.model.bprop(input_data, grad_output)
                 self.model.update(params)
 
-            # print("\n* Epoch %d" % (epoch + 1))
-            # # print("%d | train error: %g" % (total_num + 1, total_err / total_num))
-            # print("pred =\n%s" % pred)
-            # print("target_data =\n%s" % target_data)
-            # print("accuracy = %.2f%%" % (100. * accuracy_score(pred, target_data)))
+            if self.verbose:
+                print("\n* Epoch %d" % (epoch + 1))
+                print("%d | train error: %g" % (total_num + 1, total_err / total_num))
+                print("pred =\n%s" % pred)
+                print("target_data =\n%s" % target_data)
+                print("accuracy = %.2f%%" % (100. * accuracy_score(pred, target_data)))
 
     def predict_proba(self, X):
         return self.model.fprop(X)
 
+    def _build_model(self):
+        input_size, layer_sizes, output_size = self.input_size, self.layers, self.output_size
 
-def _build_model(input_size, layer_sizes, output_size):
+        model = Sequential()
+        for i in range(len(layer_sizes)):
+            if i == 0:
+                model.add(Linear(input_size, layer_sizes[i]))
+            else:
+                model.add(Linear(layer_sizes[i - 1], layer_sizes[i]))
+            model.add(Sigmoid())
+            # model.add(ReLU())
 
-    model = Sequential()
-    for i in range(len(layer_sizes)):
-        if i == 0:
-            model.add(Linear(input_size, layer_sizes[i]))
-        else:
-            model.add(Linear(layer_sizes[i - 1], layer_sizes[i]))
-        model.add(Sigmoid())
-        # model.add(ReLU())
+        model.add(Linear(layer_sizes[-1], output_size))
+        model.add(Softmax(skip_bprop=True))
 
-    model.add(Linear(layer_sizes[-1], output_size))
-    model.add(Softmax(skip_bprop=True))
+        # Cost
+        loss = CrossEntropyLoss(size_average=True, do_softmax_bprop=True)
 
-    # Cost
-    loss = CrossEntropyLoss(size_average=True, do_softmax_bprop=True)
-
-    return model, loss
+        return model, loss
