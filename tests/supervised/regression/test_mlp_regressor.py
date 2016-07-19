@@ -30,4 +30,4 @@ class TestMLPRegressor(unittest.TestCase):
         rmse = rmse_score(test_y, pred_y)
         print("RMSE = %g" % rmse)
 
-        # self.assertLessEqual(rmse, 6)
+        self.assertLessEqual(rmse, 3.3)

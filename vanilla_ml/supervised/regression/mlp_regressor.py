@@ -32,6 +32,7 @@ class MLPRegressor(AbstractRegressor):
         self.random_state = random_state
         self._classes = None
         self.model = None
+        self.loss = None
 
     def fit(self, X, y, sample_weights=None):
         assert sample_weights is None, "Specifying sample weights is not supported!"
@@ -46,7 +47,7 @@ class MLPRegressor(AbstractRegressor):
         y = y[:, None]  # Expand y to make it a 2-dimensional vector.
 
         # Model
-        self.model, loss = _build_model(n_features, self.layers)
+        self.model, self.loss = _build_model(n_features, self.layers)
 
         # SGD params
         params = {"lrate": self.lr, "max_grad_norm": 40}
@@ -73,7 +74,7 @@ class MLPRegressor(AbstractRegressor):
 
                 # Forward propagation
                 pred = self.model.fprop(input_data)
-                total_cost += loss.fprop(pred, target_data)
+                total_cost += self.loss.fprop(pred, target_data)
                 total_err  += mse_score(target_data, pred)
                 total_num  += self.batch_size
 
@@ -84,7 +85,7 @@ class MLPRegressor(AbstractRegressor):
                 print("RMSE = %g" % rmse_score(target_data, pred))
 
                 # Backward propagation
-                grad_output = loss.bprop(pred, target_data)
+                grad_output = self.loss.bprop(pred, target_data)
                 self.model.bprop(input_data, grad_output)
                 self.model.update(params)
 

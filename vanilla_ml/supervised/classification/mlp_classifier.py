@@ -31,6 +31,7 @@ class MLPClassifier(AbstractClassifier):
         self.random_state = random_state
         self._classes = None
         self.model = None
+        self.loss = None
 
     def fit(self, X, y, sample_weights=None):
         assert sample_weights is None, "Specifying sample weights is not supported!"
@@ -49,7 +50,7 @@ class MLPClassifier(AbstractClassifier):
         # one_hot_y = misc.one_hot(y, n_classes)
 
         # Model
-        self.model, loss = _build_model(n_features, self.layers, n_classes)
+        self.model, self.loss = _build_model(n_features, self.layers, n_classes)
 
         # SGD params
         params = {"lrate": self.lr, "max_grad_norm": 40}
@@ -76,7 +77,7 @@ class MLPClassifier(AbstractClassifier):
 
                 # Forward propagation
                 out = self.model.fprop(input_data)
-                total_cost += loss.fprop(out, target_data)
+                total_cost += self.loss.fprop(out, target_data)
                 pred = out.argmax(axis=1)
                 total_err += accuracy_score(pred, target_data)
                 total_num += self.batch_size
@@ -86,11 +87,11 @@ class MLPClassifier(AbstractClassifier):
                 # print("pred =\n%s" % pred)
                 # print("pred_proba =\n%s" % out)
                 # print("target_data =\n%s" % target_data)
-                print("loss = %s" % loss.fprop(out, target_data))
+                print("loss = %s" % self.loss.fprop(out, target_data))
                 print("Accuracy = %.2f%%" % (100. * accuracy_score(target_data, pred)))
 
                 # Backward propagation
-                grad_output = loss.bprop(out, target_data)
+                grad_output = self.loss.bprop(out, target_data)
                 self.model.bprop(input_data, grad_output)
                 self.model.update(params)
 

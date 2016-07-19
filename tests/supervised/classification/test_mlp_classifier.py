@@ -25,7 +25,7 @@ class TestMLPClassifier(unittest.TestCase):
         # train_X = test_X = np.array([[0], [1]])
         # train_y = test_y = np.array([0, 1])
 
-        layers = [10]
+        layers = [100]
         clf = MLPClassifier(layers, batch_size=train_X.shape[0], n_epochs=100, learning_rate=0.1)
         print("clf: %s" % clf)
 
@@ -43,4 +43,4 @@ class TestMLPClassifier(unittest.TestCase):
         accuracy = accuracy_score(test_y, pred_y)
         print("Accuracy = %g%%" % (100 * accuracy))
 
-        # self.assertGreaterEqual(accuracy, 0.94)
+        self.assertGreaterEqual(accuracy, 0.89)
