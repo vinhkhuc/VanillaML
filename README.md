@@ -37,6 +37,7 @@ $ sudo pip install -r requirements.txt
     - Random Forest
     - Feed-forward Neural Network
     - AdaBoost
+    
 - <b>Regression</b>
     - Nearest Neighbors
     - Linear Regression
@@ -44,6 +45,9 @@ $ sudo pip install -r requirements.txt
     - Random Forest
     - Feed-forward Neural Network    
     - Gradient Boosting
+    
+- <b>Ranking</b>
+    - RankNet
 
 ### 2. Unsupervised
 - <b>Clustering</b>
