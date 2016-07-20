@@ -1,6 +1,6 @@
 # VanillaML
-VanillaML contains a collection of popular machine learning algorithms. The implementations follow 
-scikit-learn's API conventions and are made to be as simple as possible.
+VanillaML contains a collection of popular machine learning algorithms in Python. The implementations 
+follow scikit-learn's API conventions and are made to be as simple as possible.
 
 ## Demos
 
