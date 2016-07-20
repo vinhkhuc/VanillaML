@@ -164,6 +164,17 @@ def get_regression_curve(noise=True):
     return _get_train_test_split(X, y)
 
 
+# Adapted from http://qiita.com/sz_dr/items/0e50120318527a928407 (Japanese)
+def get_ranking_train_test(n_dim=50, n_rank=5, n_sample=1000, sigma=5., random_state=42):
+    rand = np.random
+    rand.seed(random_state)
+    y = rand.random_integers(n_rank, size=n_sample)
+    w = rand.standard_normal(n_dim)
+    X = [sigma * np.random.standard_normal(n_dim) + w * y_i for y_i in y]
+    X = np.array(X, np.float32)
+    return _get_train_test_split(X, y)
+
+
 def get_accuracy(model, train_test):
     tr_X, te_X, tr_y, te_y = train_test
 
