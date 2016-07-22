@@ -18,7 +18,6 @@ class RankNet(AbstractRanker):
 
     def __init__(self, layers, learning_rate=1.0, batch_size=10,
                  n_epochs=50, tol=1e-5, verbose=True, random_state=42):
-
         assert learning_rate > 0, "Learning rate must be positive."
 
         self.layers = layers
@@ -44,7 +43,6 @@ class RankNet(AbstractRanker):
 
         # SGD params
         params = {"lrate": self.lr, "max_grad_norm": 40}
-
         indices = np.arange(n_samples)
 
         # Run SGD
