@@ -3,6 +3,7 @@ Misc utility
 """
 from __future__ import division
 
+import itertools
 import numpy as np
 
 
@@ -36,14 +37,14 @@ def get_penalty(w, factor, penalty):
         raise Exception("The penalty '%s' is not supported!" % penalty)
 
 
-def sign_prediction(y):
+def label_to_sign(y):
     """
     Maps {0, 1} to {-1, 1}.
     """
     return 2 * y - 1
 
 
-def unsign_prediction(y):
+def sign_to_label(y):
     """
     Maps {-1, 1} to {0, 1}.
     """
