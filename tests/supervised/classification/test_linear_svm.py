@@ -18,7 +18,7 @@ class TestLinearSVM(unittest.TestCase):
         train_X = scaler.fit_transform(train_X)
         test_X = scaler.transform(test_X)
 
-        clf = LinearSVM(max_iterations=2)
+        clf = LinearSVM(max_iterations=10)
         print("clf: %s" % clf)
 
         print("Fitting ...")

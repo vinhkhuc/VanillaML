@@ -201,3 +201,35 @@ def make_blobs(n_samples=100, n_features=2, n_centers=3, centers=None, cluster_s
     y = np.array(y)
     rand_indices = np.random.permutation(n_samples)
     return X[rand_indices], y[rand_indices]
+
+
+# TODO: Move this to PairwiseTransformer
+def pairwise_transform(X, y=None):
+    """ Pairwise transformation.
+
+    Args:
+        X (ndarray): data points, shape (N, ) or (N, 2).
+            If the shape is (N, 2), the second column represents data point's group.
+        y (Optional[ndarray]): ranking labels, shape (N, ).
+
+    Returns:
+        tuple: a tuple (X_diff, y_diff)
+            where X_diff contains pairwise differences of X
+            and y_diff contains -1 and 1 indicating ranking of datapoints in X.
+
+    """
+    assert X.shape[0] == y.shape[0], "X, y have mismatched lengths."
+
+    N = X.shape[0]
+    y = np.asarray(y) if y is not None else np.arange(N)
+
+    X_diff, y_diff = [], []
+
+    for i, j in itertools.combinations(range(N), 2):
+        # Skip the pair of data points that have the same ranks
+        if y[i] == y[j]:
+            continue
+        X_diff.append(X[i] - X[j])
+        y_diff.append(np.sign(y[i] - y[j]))
+
+    return np.asarray(X_diff), np.asarray(y_diff)
