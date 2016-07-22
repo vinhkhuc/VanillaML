@@ -12,7 +12,8 @@ class TestRankLinearSVM(unittest.TestCase):
         print("train_X's shape = %s, train_y's shape = %s" % (train_X.shape, train_y.shape))
         print("test_X's shape = %s, test_y's shape = %s" % (test_X.shape, test_y.shape))
 
-        rnk = RankLinearSVM(max_iterations=100)
+        rnk = RankLinearSVM(max_iterations=100, penalty_factor=0.01,
+                            learning_rate=0.01, tol=1e-5)
         print("rnk: %s" % rnk)
 
         print("Fitting ...")
@@ -29,5 +30,5 @@ class TestRankLinearSVM(unittest.TestCase):
         ndcg_score = ndcg(test_y, pred_proba_y, k)
         print("NDCG@%d = %g" % (k, ndcg_score))
 
-        # self.assertGreaterEqual(ndcg_score, 0.93)
+        self.assertGreaterEqual(ndcg_score, 0.92)
 
