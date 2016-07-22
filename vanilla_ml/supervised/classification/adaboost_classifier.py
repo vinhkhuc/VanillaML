@@ -10,7 +10,7 @@ import math
 import numpy as np
 
 from vanilla_ml.supervised.classification.abstract_classifier import AbstractClassifier
-from vanilla_ml.util.misc import sign_prediction, unsign_prediction
+from vanilla_ml.util.misc import label_to_sign, sign_to_label
 
 SMALL_EPS = 1e-10
 
@@ -53,7 +53,7 @@ class AdaBoostClassifier(AbstractClassifier):
             alphas_i = 0.5 * math.log((1 - eps + SMALL_EPS) / (eps + SMALL_EPS))
 
             # Update instance weights
-            yh_i = sign_prediction(y) * sign_prediction(pred_y)
+            yh_i = label_to_sign(y) * label_to_sign(pred_y)
             exp_alphas = np.exp(-alphas_i * yh_i)
             D *= exp_alphas
             D /= sum(D)
@@ -75,10 +75,10 @@ class AdaBoostClassifier(AbstractClassifier):
                 print("train_errors = %g" % train_errors)
 
     def predict(self, X):
-        hxs = np.array([sign_prediction(hs_i.predict(X)) for hs_i in self.hs])
+        hxs = np.array([label_to_sign(hs_i.predict(X)) for hs_i in self.hs])
         tmp = np.dot(hxs.T, self.alphas)
         sign_pred_y = np.sign(tmp)
-        return unsign_prediction(sign_pred_y)
+        return sign_to_label(sign_pred_y)
 
     def predict_proba(self, X):
         raise Exception("AdaBoostClassifier")

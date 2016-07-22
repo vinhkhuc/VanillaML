@@ -18,7 +18,8 @@ class TestLinearSVM(unittest.TestCase):
         train_X = scaler.fit_transform(train_X)
         test_X = scaler.transform(test_X)
 
-        clf = LinearSVM(max_iterations=2)
+        clf = LinearSVM(max_iterations=100, penalty_factor=0.1,
+                        learning_rate=0.001, tol=1e-4)
         print("clf: %s" % clf)
 
         print("Fitting ...")
@@ -32,4 +33,4 @@ class TestLinearSVM(unittest.TestCase):
         accuracy = accuracy_score(test_y, pred_y)
         print("Accuracy = %g%%" % (100 * accuracy))
 
-        # self.assertGreaterEqual(accuracy, 0.95)
+        self.assertGreaterEqual(accuracy, 0.88)

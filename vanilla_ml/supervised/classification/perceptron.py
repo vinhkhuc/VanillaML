@@ -4,7 +4,7 @@ Classic perceptron, averaged perceptron
 import numpy as np
 from vanilla_ml.supervised.classification.abstract_classifier import AbstractClassifier
 from vanilla_ml.util import misc
-from vanilla_ml.util.misc import sign_prediction, unsign_prediction
+from vanilla_ml.util.misc import label_to_sign, sign_to_label
 
 
 # TODO: Check convergence (check maxent.py)
@@ -30,7 +30,7 @@ class Perceptron(AbstractClassifier):
             X = np.hstack((X, np.ones((X.shape[0], 1))))
 
         self._classes = np.unique(y)
-        sign_y = sign_prediction(y)
+        sign_y = label_to_sign(y)
 
         n_samples, n_features = X.shape
         w = np.zeros(n_features)
@@ -57,4 +57,4 @@ class Perceptron(AbstractClassifier):
         if self.fit_bias:
             X = np.hstack((X, np.ones((X.shape[0], 1))))
         pred_sign_y = np.sign(np.dot(X, self.w))
-        return unsign_prediction(pred_sign_y)
+        return sign_to_label(pred_sign_y)
