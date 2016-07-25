@@ -181,6 +181,9 @@ class LambdaRankLoss(Loss):
             s_ij = s[i] - s[j]
             delta_ij = delta_dcg(y, s, i, j)
             # FIXME: ndcg_delta_ij is pretty small which almost doesn't any affect on gradient's updates.
+            # TODO: Should we use delta_ndcg or delta_dcg?
+            # In detla_ndcg, the ideal DCG must be computed for all ys (not just the training batch).
+
             # lambda_ij = -sigma / (1 + np.exp(sigma * s_ij)) * abs(ndcg_delta_ij)
 
             S_ij = 1 if y[i] > y[j] else -1 if y[i] < y[j] else 0
