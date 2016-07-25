@@ -73,6 +73,28 @@ def dcg_at_ix(y_true, true_idx, pred_idx):
     return (2 ** y_true[true_idx] - 1) / np.log2(pred_idx + 2)
 
 
+def delta_dcg(y_true, y_pred, i, j):
+    """ Compute the DCG delta if we swap two ranked indices i and j.
+
+    Args:
+        y_true (ndarray): array of true relevant scores, shape N.
+        y_pred (ndarray): array of predicted relevant scores, shape N.
+        i (int): ranking index.
+        j (int): ranking index.
+
+    Returns:
+        float: DCG delta score.
+
+    """
+    y_true = y_true.ravel()
+    y_pred = y_pred.ravel()
+
+    sorted_indices = np.argsort(y_pred)[::-1]  # TODO: Need to cache it somewhere
+    idx_i, idx_j = sorted_indices[i], sorted_indices[j]
+    return dcg_at_ix(y_true, idx_i, i) + dcg_at_ix(y_true, idx_j, j) \
+           - dcg_at_ix(y_true, idx_i, j) - dcg_at_ix(y_true, idx_j, i)
+
+
 def delta_ndcg(y_true, y_pred, i, j):
     """ Compute the NDCG delta if we swap two ranked indices i and j.
 
@@ -86,10 +108,16 @@ def delta_ndcg(y_true, y_pred, i, j):
         float: NDCG delta score.
 
     """
-    sorted_indices = np.argsort(y_pred)[::-1]  # TODO: Need to cache it somewhere
-    idx_i, idx_j = sorted_indices[i], sorted_indices[j]
-    tmp = dcg_at_ix(y_true, idx_i, i) + dcg_at_ix(y_true, idx_j, j) \
-        - dcg_at_ix(y_true, idx_i, j) - dcg_at_ix(y_true, idx_j, i)
-
+    delta_dcg_score = delta_dcg(y_true, y_pred, i, j)
     idcg_score = idcg(y_true, k=len(y_true))
-    return tmp / idcg_score
+    return delta_dcg_score / idcg_score
+
+    # k = len(y_true)
+    # orig_ndcg = ndcg(y_true, y_pred, k=k)
+    #
+    # swapped_y_pred = np.copy(y_pred)
+    # swapped_y_pred[i] = y_pred[j]
+    # swapped_y_pred[j] = y_pred[i]
+    # swapped_ndcg = ndcg(y_true, swapped_y_pred, k=k)
+    #
+    # return orig_ndcg - swapped_ndcg

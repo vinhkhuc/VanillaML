@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
-from vanilla_ml.util.metrics.ranking import delta_ndcg
+from vanilla_ml.util.metrics.ranking import delta_ndcg, delta_dcg
 
 
 class Loss(object):
@@ -133,12 +133,34 @@ class RankNetLoss(Loss):
         return grad_input
 
 
-class LambdaRankLoss(RankNetLoss):
+class LambdaRankLoss(Loss):
     """ Loss for LambdaRank (see the equation 6 in the section 4.1 in the paper
     "From RankNet to LambdaRank to LambdaMART: An Overview", Christ Burges).
     """
     def __init__(self, sigma=1., size_average=True):
-        super(LambdaRankLoss, self).__init__(sigma, size_average)
+        self.sigma = sigma
+        self.size_average = size_average
+
+    def fprop(self, input_data, target_data):
+        # Try to use the same notation as in the paper
+        s, y, sigma = input_data.ravel(), target_data.ravel(), self.sigma
+
+        # Iterate over all combinations of indices, i.e (0, 0), (0, 1), ...
+        n_samples = s.shape[0]
+        cost = 0
+        for i, j in itertools.combinations(range(n_samples), 2):
+            s_ij = s[i] - s[j]
+            delta_ij = delta_dcg(y, s, i, j)
+            # Similar to RankNetLoss but here we set S_ij = 1 and we multiply it by delta_ndcg
+            # cost += np.log(1 + np.exp(-sigma * s_ij)) * abs(ndcg_delta_ij)
+
+            S_ij = 1 if y[i] > y[j] else -1 if y[i] < y[j] else 0
+            cost += (0.5 * sigma * (1 - S_ij) * s_ij + np.log(1 + np.exp(-sigma * s_ij))) * abs(delta_ij)
+
+        if self.size_average:
+            cost /= 0.5 * n_samples * (n_samples + 1)  # normalized by the total number of pairs
+
+        return cost
 
     def bprop(self, input_data, target_data):
         """ Back-propagation for LambdaRank.
@@ -151,16 +173,38 @@ class LambdaRankLoss(RankNetLoss):
             ndarray: gradient
 
         """
-        s, y, sigma = input_data, target_data, self.sigma
+        s, y, sigma = input_data.ravel(), target_data.ravel(), self.sigma
         n_samples = s.shape[0]
 
         grad_input = np.zeros_like(input_data, np.float32)  # lambda
         for i, j in itertools.combinations(range(n_samples), 2):
             s_ij = s[i] - s[j]
-            ndcg_delta_ij = delta_ndcg(y, s, i, j)
-            lambda_ij = - sigma / (1 + np.exp(sigma * s_ij)) * abs(ndcg_delta_ij)
+            delta_ij = delta_dcg(y, s, i, j)
+            # FIXME: ndcg_delta_ij is pretty small which almost doesn't any affect on gradient's updates.
+            # lambda_ij = -sigma / (1 + np.exp(sigma * s_ij)) * abs(ndcg_delta_ij)
+
+            S_ij = 1 if y[i] > y[j] else -1 if y[i] < y[j] else 0
+            lambda_ij = (0.5 * sigma * (1 - S_ij) - sigma / (1 + np.exp(sigma * s_ij))) * abs(delta_ij)
+
+            # from vanilla_ml.util.metrics.ranking import idcg
+            # idcg_score = idcg(y, k=len(y))
+            # # idcg_score = 1.
+            # dcg_delta_ij = (2 ** y[i] - 2 ** y[j]) * (1 / np.log2(2 + i) - 1 / np.log2(2 + j))
+            # ndcg_delta_ij = dcg_delta_ij / idcg_score
+            #
+            # lambda_ij = sigma / (1 + np.exp(sigma * s_ij)) * ndcg_delta_ij
+
+            # if i == 0 and j == 1:
+            #     print("\tndcg_delta_ij = %g, lambda_ij = %g" % (ndcg_delta_ij, lambda_ij))
+
             grad_input[i] += lambda_ij
             grad_input[j] -= lambda_ij
+
+        # print(grad_input[0])
+
+        # In the paper, the optimizer maximizes LambdaRank's utility C.
+        # But our optimizer always minimizes the target function.
+        # grad_input = -grad_input
 
         if self.size_average:
             grad_input /= 0.5 * n_samples * (n_samples + 1)
