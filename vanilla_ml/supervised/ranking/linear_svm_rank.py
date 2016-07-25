@@ -1,5 +1,5 @@
 """
-RankLinearSVM using pairwise transformation and LinearSVM as the base classifier.
+(Linear) SVMRank using pairwise transformation and LinearSVM as the base classifier.
 
 References:
     1) "Large Margin Rank Boundaries for Ordinal Regression",
@@ -15,7 +15,7 @@ from vanilla_ml.supervised.ranking.abstract_ranker import AbstractRanker
 from vanilla_ml.util import misc
 
 
-class RankLinearSVM(AbstractRanker):
+class LinearSVMRank(AbstractRanker):
 
     def __init__(self, learning_rate=1.0, fit_bias=True, penalty_type=None, penalty_factor=1.0,
                  mini_batch_size=10, max_iterations=50, tol=1e-5, verbose=True, random_state=42):
