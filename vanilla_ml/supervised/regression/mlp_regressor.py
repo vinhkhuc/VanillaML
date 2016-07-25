@@ -69,7 +69,7 @@ class MLPRegressor(AbstractRegressor):
                 pred = self.model.fprop(input_data)
                 total_cost += self.loss.fprop(pred, target_data)
                 total_err  += mse_score(target_data, pred)
-                total_num  += self.batch_size
+                total_num  += len(batch)
 
                 # print("\n* Iter %d" % (it + 1))
                 # print("input_data =\n%s" % input_data)

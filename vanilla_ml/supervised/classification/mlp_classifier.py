@@ -73,7 +73,7 @@ class MLPClassifier(AbstractClassifier):
                 total_cost += self.loss.fprop(out, target_data)
                 pred = out.argmax(axis=1)
                 total_err += accuracy_score(pred, target_data)
-                total_num += self.batch_size
+                total_num += len(batch)
 
                 if self.verbose:
                     print("\n* Iter %d" % (it + 1))

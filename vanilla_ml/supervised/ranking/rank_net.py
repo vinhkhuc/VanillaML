@@ -47,13 +47,13 @@ class RankNet(AbstractRanker):
 
         # Run SGD
         for epoch in range(self.n_epochs):
-            if self.verbose and (epoch + 1) % 10 == 0:
-                print("\n * Epoch %d ..." % (epoch + 1))
+            if self.verbose:
+                print("\n*Epoch %d:" % (epoch + 1))
 
             # For report
-            # total_ndcg_score  = 0.
-            # total_cost = 0.
-            # total_num  = 0
+            total_num  = 0
+            total_cost = 0.
+            total_ndcg_score  = 0.
 
             for it in range(n_samples / self.batch_size):
 
@@ -65,19 +65,24 @@ class RankNet(AbstractRanker):
 
                 # Forward propagation
                 pred = self.model.fprop(input_data)
-                # total_cost += self.loss.fprop(pred, target_data)
-                # total_num  += self.batch_size
-                ndcg_score = ndcg(target_data, pred, k=10)
-                # total_ndcg_score += ndcg_score
+                cost = self.loss.fprop(pred, target_data)
+                total_num  += len(batch)
+                total_cost += cost
+                ndcg_score = ndcg(target_data, pred, k=5)
+                total_ndcg_score += ndcg_score
 
                 if self.verbose:
-                    print("\n* Iter %d" % (it + 1))
-                    print("Train NDCG@10: %g" % ndcg_score)
+                    print("Iter %d, cost: %g, train NDCG@10: %g" %
+                          (it + 1, ndcg_score, cost))
 
                 # Backward propagation
                 grad_output = self.loss.bprop(pred, target_data)
                 self.model.bprop(input_data, grad_output)
                 self.model.update(params)
+
+            if self.verbose:
+                print("Total: %d, avg train cost: %g, avg NDCG@10: %g" %
+                      (total_num, total_cost / total_num, total_ndcg_score / total_num))
 
     def rank_score(self, X):
         return self.model.fprop(X).ravel()
