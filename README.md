@@ -48,6 +48,7 @@ $ sudo pip install -r requirements.txt
     
 - <b>Ranking</b>
     - RankNet
+    - Linear RankSVM
 
 ### 2. Unsupervised
 - <b>Clustering</b>
