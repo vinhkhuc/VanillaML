@@ -13,7 +13,7 @@ follow scikit-learn's API conventions and are made to be as simple as possible.
 <p align="center">
     <img width="500" high="500" src="http://i.imgur.com/uSDPY0x.gif">
     <br>
-    Fitting the curve x*sin(x) with a gradient boosted tree.
+    Fitting the curve x*sin(x) using Gradient Boosted Trees.
 </p>
 
 ## Requirements
