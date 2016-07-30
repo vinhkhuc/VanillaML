@@ -1,25 +1,31 @@
 import gzip
 import random
 import csv
+import zipfile
 from os import path
 import numpy as np
+
+from vanilla_ml.util import misc
 from vanilla_ml.util.misc import train_test_split, make_moons, make_blobs
 from vanilla_ml.util.scaling.standard_scaler import StandardScaler
 
+DOWNLOAD_DATASET_PATH = path.join(path.expanduser('~'), '.VanillaML', 'datasets')
+MOVIE_LENS_100K_ZIP = 'ml-100k.zip'
+MOVIE_LENS_100K_URL = 'http://files.grouplens.org/datasets/movielens/ml-100k.zip'
 
-DATASET_PATH = path.join('..', '..', 'dataset')
+LOCAL_DATASET_PATH = path.join('..', '..', 'datasets')
 IRIS_CSV_GZ = 'iris.csv.gz'
 BOSTON_CSV_GZ = 'boston.csv.gz'
 DIGITS_CSV_GZ = 'digits.csv.gz'
 
 
-def _get_train_test_split(X, y):
-    return train_test_split(X, y, test_size=0.25, random_state=42)
+def _get_train_test_split(X, y, random_state=42):
+    return train_test_split(X, y, test_size=0.25, random_state=random_state)
 
 
 def load_iris():
     module_path = path.dirname(__file__)
-    with gzip.open(path.join(module_path, DATASET_PATH, IRIS_CSV_GZ)) as f:
+    with gzip.open(path.join(module_path, LOCAL_DATASET_PATH, IRIS_CSV_GZ)) as f:
         reader = csv.reader(f)
         next(reader)  # skip the first row which contains meta-data
         data, targets = [], []
@@ -31,7 +37,7 @@ def load_iris():
 
 def load_digits():
     module_path = path.dirname(__file__)
-    with gzip.open(path.join(module_path, DATASET_PATH, DIGITS_CSV_GZ)) as f:
+    with gzip.open(path.join(module_path, LOCAL_DATASET_PATH, DIGITS_CSV_GZ)) as f:
         reader = csv.reader(f)
         data, targets = [], []
         for row in reader:
@@ -42,7 +48,7 @@ def load_digits():
 
 def load_boston():
     module_path = path.dirname(__file__)
-    with gzip.open(path.join(module_path, DATASET_PATH, BOSTON_CSV_GZ)) as f:
+    with gzip.open(path.join(module_path, LOCAL_DATASET_PATH, BOSTON_CSV_GZ)) as f:
         reader = csv.reader(f)
         next(reader)  # skip the first row which contains meta-data
         X, y = [], []
@@ -172,7 +178,41 @@ def get_ranking_train_test(n_dim=50, n_rank=5, n_sample=1000, sigma=5., random_s
     w = rand.standard_normal(n_dim)
     X = [sigma * np.random.standard_normal(n_dim) + w * y_i for y_i in y]
     X = np.array(X, np.float32)
-    return _get_train_test_split(X, y)
+    return _get_train_test_split(X, y, random_state=random_state)
+
+
+def get_movie_lens_100k_train_test(fold=None, random_state=42):
+    """ Load training and test set from MovieLens 100k.
+
+    Args:
+        fold (Optional[int]): if None, the whole data set will be read,
+         then will be randomly split into training and test sets.
+        random_state (int):
+
+    Returns:
+        tuple: training and test sets
+
+    """
+    assert fold is None or 1 <= fold <= 5, "fold must be either from 1 to 5 or None."
+
+    movie_lens_zipfile = path.join(DOWNLOAD_DATASET_PATH, MOVIE_LENS_100K_ZIP)
+    if not path.exists(movie_lens_zipfile):
+        print("Downloading the MovieLens data set '%s' ..." % movie_lens_zipfile)
+        misc.download_file(MOVIE_LENS_100K_URL, movie_lens_zipfile)
+
+    movie_lens = zipfile.ZipFile(movie_lens_zipfile, 'r')
+    if fold is None:
+        data_file = movie_lens.open('ml-100k/u.data')
+        data = np.loadtxt(data_file)
+        X, y = data[:, :2], data[:, 2]
+        X, y = _get_train_test_split(X, y, random_state=random_state)
+    else:
+        train_file = movie_lens.open('ml-100k/u%d.base' % fold)
+        test_file = movie_lens.open('ml-100k/u%d.test' % fold)
+        X, y = np.loadtxt(train_file), np.loadtxt(test_file)
+
+    # TODO: Load x, y to a matrix
+    return X, y
 
 
 def get_accuracy(model, train_test):

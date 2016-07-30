@@ -3,8 +3,21 @@ Misc utility
 """
 from __future__ import division
 
+import os
+from os import path
 import itertools
+import urllib
+
 import numpy as np
+
+
+def download_file(url, local_path):
+    dir_path = path.dirname(local_path)
+    if not path.exists(dir_path):
+        print("Creating the directory '%s' ..." % dir_path)
+        os.makedirs(dir_path)
+
+    urllib.URLopener().retrieve(url, local_path)
 
 
 def sigmoid(x):
