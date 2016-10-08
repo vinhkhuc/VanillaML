@@ -51,7 +51,7 @@ def precision(true_y, pred_y):
     true_y = true_y.squeeze()
     pred_y = pred_y.squeeze()
 
-    tp = np.sum(true_y == pred_y)
+    tp = np.sum((pred_y == 1) & (true_y == 1))
     fp = np.sum((pred_y == 1) & (true_y == 0))
     return float(tp) / (tp + fp)
 
@@ -73,6 +73,6 @@ def recall(true_y, pred_y):
     true_y = true_y.ravel()
     pred_y = pred_y.ravel()
 
-    tp = np.sum(pred_y == true_y)
+    tp = np.sum((pred_y == 1) & (true_y == 1))
     fn = np.sum((pred_y == 0) & (true_y == 1))
     return float(tp) / (tp + fn)
