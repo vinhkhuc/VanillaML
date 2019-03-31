@@ -79,5 +79,6 @@ def draw_plot(X, y, it, centroids, ax):
 
     ax.set_title('Iteration %d' % (it + 1))
 
+
 if __name__ == "__main__":
     viz()

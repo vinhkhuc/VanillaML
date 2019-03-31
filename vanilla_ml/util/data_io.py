@@ -143,6 +143,23 @@ def get_boston_train_test():
     return _get_train_test_split(X, y)
 
 
+def get_binary_classification_data(n_samples=750, centers=None, cluster_std=0.4, random_state=42):
+    if centers is None:
+        centers = np.array([[1, 1], [-1, -1]])
+
+    assert len(centers) == 2, "There must be two classes for binary classification"
+    return get_classification_data(n_samples, centers, cluster_std, random_state)
+
+
+def get_classification_data(n_samples=750, centers=None, cluster_std=0.4, random_state=42):
+    if centers is None:
+        centers = [[1, 1], [-1, -1], [1, -1]]
+    X, y = make_blobs(n_samples=n_samples, centers=centers,
+                      cluster_std=cluster_std, random_state=random_state)
+    X = StandardScaler().fit_transform(X)
+    return X, y
+
+
 def get_clustering_data(n_samples=750, centers=None, cluster_std=0.4, random_state=42):
     if centers is None:
         centers = [[1, 1], [-1, -1], [1, -1]]

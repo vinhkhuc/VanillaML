@@ -58,5 +58,6 @@ def run_boosted_regression_tree(i, X, train_y, test_y, ax):
     # ax.set_title('Iteration %d, training RMSE = %g, test RMSE = %g' % (i + 1, train_rmse, test_rmse))
     ax.set_title('Iteration %d, training RMSE = %g' % (i + 1, train_rmse))
 
+
 if __name__ == "__main__":
     viz()
