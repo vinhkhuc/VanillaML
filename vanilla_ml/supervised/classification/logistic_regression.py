@@ -83,6 +83,7 @@ class LogisticRegression(AbstractClassifier):
 
     def _grad(self, X, y):
         pred_proba_y = misc.sigmoid(np.dot(X, self.w))
+        # TODO: Is this correct or grad = (pred_proba_y - y) * X
         grad = np.dot(pred_proba_y - y, X)
         if self.penalty_type is not None:
             grad += misc.get_penalty(self.w, self.penalty_factor, self.penalty_type)
